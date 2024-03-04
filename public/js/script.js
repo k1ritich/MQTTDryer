@@ -18,7 +18,6 @@ allSideMenu.forEach(item => {
         // Close sidebar on tab click if the window width is less than 768
         if (window.innerWidth < 768) {
             sidebar.classList.add('hide');
-            saveSidebarState('hide');
         }
     });
 });
@@ -28,7 +27,6 @@ const menuBar = document.querySelector('#content nav .bx.bx-menu');
 
 menuBar.addEventListener('click', function () {
     const isHidden = sidebar.classList.toggle('hide');
-    saveSidebarState(isHidden ? 'hide' : 'show');
 });
 
 const searchButton = document.querySelector('#content nav form .form-input button');
