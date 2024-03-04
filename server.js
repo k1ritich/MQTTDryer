@@ -79,15 +79,15 @@ mqttClient.on('connect', () => {
   });
 
   const staticPaths = [
-    __dirname,
-    __dirname + '/uploads',
-    __dirname + '/Public/css',
-    __dirname + '/Public/js',
-    __dirname + '/Public/img',
-    __dirname + '/Public/img/ProfilesImg',
-    __dirname + '/Public/mqttConnection',
-    __dirname + '/node_modules/bootstrap/dist',
-    __dirname + '/node_modules/bootstrap-icons/font',
+    ,
+    '/uploads',
+     '/Public/css',
+     '/Public/js',
+     '/Public/img',
+     '/Public/img/ProfilesImg',
+     '/Public/mqttConnection',
+     '/node_modules/bootstrap/dist',
+     '/node_modules/bootstrap-icons/font',
 ];
 
   staticPaths.forEach(staticPath => {
