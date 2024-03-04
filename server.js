@@ -79,16 +79,16 @@ mqttClient.on('connect', () => {
   });
 
   const staticPaths = [
-      path.join(__dirname, '.'),
-      path.join(__dirname, 'uploads'),
-      path.join(__dirname, 'Public', 'css'),
-      path.join(__dirname, 'Public', 'js'),
-      path.join(__dirname, 'Public', 'img'),
-      path.join(__dirname, 'Public', 'img', 'ProfilesImg'),
-      path.join(__dirname, 'Public', 'mqttConnection'),
-      path.join(__dirname, 'node_modules', 'bootstrap', 'dist'),
-      path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font'),
-  ];
+    __dirname,
+    __dirname + '/uploads',
+    __dirname + '/Public/css',
+    __dirname + '/Public/js',
+    __dirname + '/Public/img',
+    __dirname + '/Public/img/ProfilesImg',
+    __dirname + '/Public/mqttConnection',
+    __dirname + '/node_modules/bootstrap/dist',
+    __dirname + '/node_modules/bootstrap-icons/font',
+];
 
   staticPaths.forEach(staticPath => {
       app.use(express.static(staticPath));
