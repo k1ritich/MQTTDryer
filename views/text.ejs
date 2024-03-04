@@ -1,0 +1,32 @@
+<script>
+			socket.on('mqttMessage', (payload) => {
+			if (payload.topic === 'MYMQTT/TemperatureTopic') {
+
+			} else if (payload.topic === 'MYMQTT/HumidityTopic') {
+
+			} else if (payload.topic === 'MYMQTT/VoltageTopic') { // 
+
+			} else if (payload.topic === 'MYMQTT/SourceTopic') {
+				if (payload.message === 'BATTERY') {
+
+				} else if (payload.message === 'AC') {
+
+				} else if (payload.message === 'OFF') {
+
+				}
+			} else if (payload.topic === 'MYMQTT/SourceModeTopic') {
+				if (payload.message === 'AUTOMATIC') {
+
+				} else if (payload.message === 'MANUAL') {
+
+				} else if (payload.message === 'OFF') {
+
+				}
+			} else if (payload.topic === 'MYMQTT/InitialACPowerTopic'){
+
+			} else if (payload.topic === 'MYMQTT/PresentACPowerTopic'){
+				
+			}
+		});
+		
+</script>

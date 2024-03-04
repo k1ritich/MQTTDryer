@@ -1,0 +1,11 @@
+{
+    "name": "your-app-name",
+    "builds": [
+      {
+        "src": "app.js",
+        "use": "@cloudflare/wrangler",
+        "config": "wrangler.toml"
+      }
+    ]
+  }
+  

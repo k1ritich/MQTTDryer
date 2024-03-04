@@ -1,0 +1,43 @@
+<!-- sub-navbar.ejs -->
+<div class="head-title">
+    <div class="left">
+        <h1><%= title %></h1>
+        <ul class="breadcrumb">
+            <li>
+                <a class="a" href="#"><%= title %></a>
+            </li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li>
+                <a class="active a" href="#"><%= subtitle %></a>
+            </li>
+        </ul>
+        
+
+        <% if (activeTab === 'dashboard') { %>
+            <% if (timerInfo) { %>
+                <button type="button" class="btn btn-warning" id="StopDrying" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <i class="bi bi-stop-circle"></i> Stop Drying
+                </button>
+            <% } else { %>   
+                <button type="button" class="btn btn-warning" style="background-color: #800000; color: white;" data-bs-toggle="modal" data-bs-target="#startDrying">
+                    <i class="bi bi-play-circle" style="color: white;"></i> Start Drying
+                </button>
+            <% } %>
+        <% } %>
+    </div>
+    
+
+
+    <% if (activeTab === 'profile') { %>
+            <button type="button" class="btn btn-warning" style="background-color: #800000; color: white;" data-bs-toggle="modal" data-bs-target="#AddUser">
+                <i class='bx bxs-plus-circle'></i>
+                <span class="text">Add a User</span>
+        </a>
+    <% } else if (activeTab === 'history') { %>
+        <a href="#" class="btn-download">
+            <i class='bx bxs-cloud-download'></i>
+            <span class="text">Download PDF</span>
+        </a>
+    <% } else if (activeTab === 'dashboard'){ %>
+    <% } %>
+</div>
