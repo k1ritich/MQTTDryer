@@ -78,22 +78,20 @@ mqttClient.on('connect', () => {
       // Handle MQTT connection error here
   });
 
-    baseDir = "mqttdryer.onrender.com";
-
   const staticPaths = [
-    baseDir,
-    baseDir + '/uploads',
-    baseDir + '/Public/css',
-    baseDir + '/Public/js',
-    baseDir + '/Public/img',
-    baseDir + '/Public/img/ProfilesImg',
-    baseDir + '/Public/mqttConnection',
-    baseDir + '/node_modules/bootstrap/dist',
-    baseDir + '/node_modules/bootstrap-icons/font',
+      path.join(__dirname, '.'),
+      path.join(__dirname, 'uploads'),
+      path.join(__dirname, 'Public', 'css'),
+      path.join(__dirname, 'Public', 'js'),
+      path.join(__dirname, 'Public', 'img'),
+      path.join(__dirname, 'Public', 'img', 'ProfilesImg'),
+      path.join(__dirname, 'Public', 'mqttConnection'),
+      path.join(__dirname, 'node_modules', 'bootstrap', 'dist'),
+      path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font'),
   ];
+
   staticPaths.forEach(staticPath => {
       app.use(express.static(staticPath));
-      console.log(staticPath);
   });
 
   const topic = [
