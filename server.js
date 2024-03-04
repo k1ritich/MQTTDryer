@@ -79,7 +79,7 @@ mqttClient.on('connect', () => {
   });
 
   const staticPaths = [
-      path.join(__dirname, '.'),
+
   ];
 
   staticPaths.forEach(staticPath => {
