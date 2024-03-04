@@ -92,6 +92,7 @@ mqttClient.on('connect', () => {
 
   staticPaths.forEach(staticPath => {
       app.use(express.static(staticPath));
+      console.log(staticPath);
   });
 
   const topic = [
