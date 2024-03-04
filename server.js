@@ -48,7 +48,7 @@ const httpServer = http.createServer(app);
 const mqttClient = mqtt.connect(mqttOptions);
 const port = 80;
 const io = require('socket.io')(httpServer);
-const WebURL = '192.168.2.20'; //const WebURL = '192.168.60.95';
+const WebURL = 'mqttdryerrr.onrender.com'; //const WebURL = '192.168.60.95';
 
 // Connect to MongoDB
 mongoose.connect(process.env.DATABASE_URL)
@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
   });
 
 // Start HTTP server
-httpServer.listen(port, () => {
+httpServer.listen(port, WebURL, () => {
   console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
@@ -92,7 +92,9 @@ mqttClient.on('connect', () => {
 
   staticPaths.forEach(staticPath => {
       app.use(express.static(staticPath));
+      console.log(staticPath);
   });
+
 
   const topic = [
       "MYMQTTDRYER/TimerRequest",
