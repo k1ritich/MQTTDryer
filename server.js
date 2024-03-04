@@ -48,7 +48,7 @@ const httpServer = http.createServer(app);
 const mqttClient = mqtt.connect(mqttOptions);
 const port = 80;
 const io = require('socket.io')(httpServer);
-const WebURL = 'mqttdryerrr.onrender.com'; //const WebURL = '192.168.60.95';
+const WebURL = '192.168.2.20'; //const WebURL = '192.168.60.95';
 
 // Connect to MongoDB
 mongoose.connect(process.env.DATABASE_URL)
@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
   });
 
 // Start HTTP server
-httpServer.listen(port, WebURL, () => {
+httpServer.listen(port, () => {
   console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
@@ -79,22 +79,20 @@ mqttClient.on('connect', () => {
   });
 
   const staticPaths = [
-    __dirname,
-    __dirname + '/uploads',
-    __dirname + '/Public/css',
-    __dirname + '/Public/js',
-    __dirname + '/Public/img',
-    __dirname + '/Public/img/ProfilesImg',
-    __dirname + '/Public/mqttConnection',
-    __dirname + '/node_modules/bootstrap/dist',
-    __dirname + '/node_modules/bootstrap-icons/font',
-];
+      path.join(__dirname, '.'),
+      path.join(__dirname, 'uploads'),
+      path.join(__dirname, 'Public', 'css'),
+      path.join(__dirname, 'Public', 'js'),
+      path.join(__dirname, 'Public', 'img'),
+      path.join(__dirname, 'Public', 'img', 'ProfilesImg'),
+      path.join(__dirname, 'Public', 'mqttConnection'),
+      path.join(__dirname, 'node_modules', 'bootstrap', 'dist'),
+      path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font'),
+  ];
 
   staticPaths.forEach(staticPath => {
       app.use(express.static(staticPath));
-      console.log(staticPath);
   });
-
 
   const topic = [
       "MYMQTTDRYER/TimerRequest",
