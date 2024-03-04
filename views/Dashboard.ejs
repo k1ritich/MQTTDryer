@@ -595,8 +595,10 @@
     });
 </script>
 
+<% if (timerInfo) { %>
 <script>
     document.getElementById("StopDrying").addEventListener("click", function() {
         document.getElementById("finishDryingForm").submit();
     });
 </script>
+<% } %>
