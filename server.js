@@ -46,7 +46,7 @@ const mqttOptions = {
 
 const httpServer = http.createServer(app);
 const mqttClient = mqtt.connect(mqttOptions);
-const port = 3000;
+const port = 80;
 const io = require('socket.io')(httpServer);
 const WebURL = '192.168.2.20'; //const WebURL = '192.168.60.95';
 
@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
   });
 
 // Start HTTP server
-httpServer.listen(port, WebURL, () => {
+httpServer.listen(port, () => {
   console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
