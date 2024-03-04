@@ -46,7 +46,7 @@ const mqttOptions = {
 
 const httpServer = http.createServer(app);
 const mqttClient = mqtt.connect(mqttOptions);
-const port = 80;
+const port = 3000;
 const io = require('socket.io')(httpServer);
 const WebURL = '192.168.2.20'; //const WebURL = '192.168.60.95';
 
@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
   });
 
 // Start HTTP server
-httpServer.listen(port, () => {
+httpServer.listen(port, WebURL, () => {
   console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
@@ -79,7 +79,15 @@ mqttClient.on('connect', () => {
   });
 
   const staticPaths = [
-
+      path.join(__dirname, '.'),
+      path.join(__dirname, 'uploads'),
+      path.join(__dirname, 'Public', 'css'),
+      path.join(__dirname, 'Public', 'js'),
+      path.join(__dirname, 'Public', 'img'),
+      path.join(__dirname, 'Public', 'img', 'ProfilesImg'),
+      path.join(__dirname, 'Public', 'mqttConnection'),
+      path.join(__dirname, 'node_modules', 'bootstrap', 'dist'),
+      path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font'),
   ];
 
   staticPaths.forEach(staticPath => {
