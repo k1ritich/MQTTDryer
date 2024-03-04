@@ -80,14 +80,6 @@ mqttClient.on('connect', () => {
 
   const staticPaths = [
       path.join(__dirname, '.'),
-      path.join(__dirname, 'uploads'),
-      path.join(__dirname, 'Public', 'css'),
-      path.join(__dirname, 'Public', 'js'),
-      path.join(__dirname, 'Public', 'img'),
-      path.join(__dirname, 'Public', 'img', 'ProfilesImg'),
-      path.join(__dirname, 'Public', 'mqttConnection'),
-      path.join(__dirname, 'node_modules', 'bootstrap', 'dist'),
-      path.join(__dirname, 'node_modules', 'bootstrap-icons', 'font'),
   ];
 
   staticPaths.forEach(staticPath => {
