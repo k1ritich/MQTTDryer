@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
   });
 
 // Start HTTP server
-httpServer.listen(port, WebURL, () => {
+httpServer.listen(port, () => {
   console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
