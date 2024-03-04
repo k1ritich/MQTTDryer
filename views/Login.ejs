@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Dryer | <%=title%></title>
+    <link rel="stylesheet" href="LoginStyle.css">
+    <link rel="icon" href="COE.png" type="image/icon type">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <div class="box-login" id="login">
+                <h2><center style="font-family:'Courier New'">Ceramic Engineering Solar Dryer</center></h2>
+                <div class="top-header">
+                    <div class="image">
+                        <img class="logo-img" src="COE.png">
+                        <img class="logo-img" src="CES.jpg">
+                    </div>
+                    <h3 style="font-family:'Courier New'">Welcome!</h3>
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert alert-danger" role="alert">
+                            <small style="font-family:'Courier New'"><%= error %></small>
+                        </div>
+                    <% } else { %>
+                        <small style="font-family:'Courier New'">Please login using your credentials</small>
+                    <% } %>
+                    
+                </div>
+                <div class="input">
+                    <form method="POST" action="/login">
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="StudUnivID" name="StudUnivID" required>
+                            <label for="StudUnivID">StudentID/UniversityID</label>
+                        </div>
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="studentPass" name="Password" required oninput="toggleEyeIcon()">
+                            <label for="studentNum">Password</label>
+                            <div class="eye-area">
+                                <div class="eye-box" onclick="myLogPassword()">
+                                    <i class="fa-regular fa-eye-slash" id="eye-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input_field">
+                            <input type="submit" class="submit-input" value="Log-In" name="log_in_btn">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEyeIcon() {
+            const pass = document.getElementById('studentPass');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (pass.value !== "") {
+                eyeIcon.style.display = "block";
+                pass.type = "password";
+            } else {
+                eyeIcon.style.display = "none";
+                pass.type = "text";
+            }
+        }
+
+        function myLogPassword() {
+            const pass = document.getElementById('studentPass');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (pass.type === "password") {
+                pass.type = "text";
+                eyeIcon.classList.add('fa-eye');
+                eyeIcon.classList.remove('fa-eye-slash');
+            } else {
+                pass.type = "password";
+                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.classList.remove('fa-eye');
+            }
+        }
+        // Initial check for eye icon
+        toggleEyeIcon();
+    </script>
+</body>
+</html>

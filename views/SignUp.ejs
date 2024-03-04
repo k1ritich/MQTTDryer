@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ceramic Engineering Solar Dryer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="COE.png" type="image/icon type">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <div class="box-login" id="login">
+                <h2><center style="font-family:'Courier New'">Ceramic Engineering Solar Dryer</center></h2>
+                <div class="top-header">
+                    <div class="image">
+                        <img class="logo-img" src="COE.png">
+                        <img class="logo-img" src="CES.jpg">
+                    </div>
+                    <h3 style="font-family:'Courier New'">Welcome!</h3>
+                    <small style="font-family:'Courier New'">Please sign up using your details</small>
+                </div>
+                <div class="input">
+                    <form method="POST">
+                        <div class="input_field">
+                            <select class="stud-input" id="usertype" name="user_type" required>
+                                <option value="professor">Professor</option>
+                                <option value="student">Student</option>
+                            </select>
+                        </div>
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="studentName" name="student_name" required>
+                            <label for="studentName">Name</label>
+                        </div>
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="studentNum" name="student_num" required>
+                            <label for="studentName">Contact No.</label>
+                        </div>
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="studentEmail" name="student_email" required>
+                            <label for="studentEmail">Email</label>
+                        </div>
+                        <div class="input_field">
+                            <input type="text" class="stud-input" id="studentPass" name="password" required oninput="toggleEyeIcon()">
+                            <label for="studentPass">Password</label>
+                            <div class="eye-area">
+                                <div class="eye-box" onclick="myLogPassword()">
+                                    <i class="fa-regular fa-eye-slash" id="eye-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input_field">
+                            <input type="submit" class="submit-input" value="REGISTER" name="sign_up_btn"onclick="signup(event)">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEyeIcon() {
+            const pass = document.getElementById('studentPass');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (pass.value !== "") {
+                eyeIcon.style.display = "block";
+                pass.type = "password";
+            } else {
+                eyeIcon.style.display = "none";
+                pass.type = "text";
+            }
+        }
+
+        function myLogPassword() {
+            const pass = document.getElementById('studentPass');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (pass.type === "password") {
+                pass.type = "text";
+                eyeIcon.classList.add('fa-eye');
+                eyeIcon.classList.remove('fa-eye-slash');
+            } else {
+                pass.type = "password";
+                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.classList.remove('fa-eye');
+            }
+        }
+        function signup(event) {
+            event.preventDefault(); // Prevent form submission
+            const name = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value;
+            const password = document.getElementById('studentPass').value;
+            const userType = document.getElementById('usertype').value;
+
+            // Check if all fields are filled including user type
+            if (name && email && password && userType) {
+                window.location.href = "login.html";
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+    </script>
+</body>
+</html>
+

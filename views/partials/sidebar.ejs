@@ -1,0 +1,180 @@
+<!-- sidebar.ejs -->
+<section id="sidebar" class="hide"  style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <% if (activeTab === 'dashboard') { %>
+    <div class=" modal fade" id="startDrying" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="container modal-content" style="border-left: #800000 10px solid; border-right: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Start Drying</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="startDryingForm" action="/StartDrying" method="POST">
+                    <!-- Modal Body Start -->
+                    <div class="modal-body">
+                        <strong><label for="DryingTitle" class="form-label">Drying Title</label></strong>
+                        <input type="text" name="DryingTitle" id="DryingTitle" class="form-control" aria-describedby="passwordHelpBlock"  required>
+    
+                        <strong><label for="ItemName" class="form-label mt-3">Item Name</label></strong>
+                        <input type="text" name="ItemName" id="ItemName" class="form-control" aria-describedby="passwordHelpBlock"  required>
+                        
+                        <strong><label for="ItemQuantity" class="form-label mt-3">Item Quantity</label></strong>
+                        <input type="text" name="ItemQuantity" id="ItemQuantity" class="form-control" aria-describedby="passwordHelpBlock" required>
+
+                        <input type="text" name="status" value="On-going" hidden>
+                        
+
+                        <!-- Selection for Manual or Automatic -->
+                        <Strong><label class="form-label mt-3">Timer Mode:</label> </Strong>
+                        <select name="TimeMode" id="TimeMode" class="form-select" onchange="TimehandleModeChange()">
+                            <option value="NOTIMER">No Timer</option>
+                            <option value="TIMER">Timer</option>
+                        </select>
+    
+                        <!-- Selection for AC Power or Battery Power (only visible when Manual is selected) -->
+                        <div id="TimeSelection" style="display: none;">
+                            <label for="ItemName" class="form-label mt-3">Duration</label>
+                        
+                            <div class="text-center">
+                                <div class="row">
+                                  <div class="col">
+                                    <input class="form-control" type="number" name="days" id="days" placeholder="Days" require> 
+                                  </div>
+                                  <div class="col">
+                                    <input class="form-control" type="number" name="hours" id="hours" placeholder="Hours" require>
+                                  </div>
+                                  <div class="col">
+                                    <input class="form-control" type="number" name="minutes" id="minutes" placeholder="Minutes" require>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selection for Manual or Automatic -->
+                        <Strong><label class="form-label mt-3">Operation Mode:</label> </Strong>
+                        <select name="modeSelect" id="modeSelect" class="form-select" onchange="handleModeChange()">
+                            <option value="AUTOMATIC">Automatic</option>
+                            <option value="MANUAL">Manual</option>
+                        </select>
+    
+                        <!-- Selection for AC Power or Battery Power (only visible when Manual is selected) -->
+                        <div id="powerSelection" class="mt-3" style="display: none;">
+                            <label class="form-label">Select Power Source:</label>
+                            <select name="powerSourceSelect" id="powerSourceSelect" class="form-select">
+                                <option value="BATTERY">Battery Power</option>
+                                <option value="AC">AC Power</option>
+                            </select>
+                        </div>
+                    </div>
+    
+                    <!-- Modal Body End -->
+                    <div class="modal-footer">
+                        <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                            <span id="alertMessage"></span>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-maroon" onclick="return checkTimeValidity()">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% } else if (activeTab === 'profile') { %>
+    <div class=" modal fade" id="AddUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Create a User</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <form id="AddUser" action="/AddUser" method="POST" enctype="multipart/form-data">
+                    <!-- Modal Body Start -->
+                    <div class="modal-body">
+                        
+                        <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                        <input type="text" name="FullName" id="NewDryingTitle" class="form-control" aria-describedby="passwordHelpBlock"  placeholder="E.g. Juan D. Dela Cruz" required>
+    
+                        <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                        <input type="text" name="UnivStudID" id="NewUnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  placeholder="E.g. xx-xxxxxx" required>
+                        
+                        <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                        <input type="text" name="EmailAddress" id="NewEmailAddress" class="form-control" aria-describedby="passwordHelpBlock" placeholder="E.g. juandelacruz@gmail.com" required>
+
+                        <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                        <input type="text" name="PhoneNumber" id="NewPhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" placeholder="E.g. 09xxxxxxxxx" required>
+
+                        <strong><label for="Password" class="form-label mt-3">Password</label></strong>
+                        <input type="Password" name="Password" id="NewPassword" class="form-control" aria-describedby="passwordHelpBlock" required>
+
+                        <strong><label for="UserProfileImage" class="form-label">Profile Image</label></strong>
+                        <input type="file" name="UserProfileImage" id="NewUserProfileImage" class="form-control" accept="image/jpeg, image/png" aria-describedby="imageHelpBlock">
+                        <div id="imageHelpBlock" class="form-text">Upload a profile image (JPG, PNG, GIF, or BMP).</div>
+
+                        <!-- Selection for Manual or Automatic -->
+                        <Strong><label class="form-label mt-3">Select Role:</label> </Strong> <label for="" style="font-style: italic;">(Select Carefully)</label>
+                        <select name="RoleSelect" id="modeSelect" class="form-select">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+    
+                    <!-- Modal Body End -->
+                    <div class="modal-footer">
+                        <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                            <span id="alertMessage"></span>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-maroon">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% } %>
+    
+    <a href="#" class="brand">
+        <img style="margin: 0px 20px 0px 10px;" src="CES.jpg" alt="Dryer Icon" width="32" height="32">
+        <span class="text">Admin Page</span>
+    </a>
+    <ul class="side-menu top">
+        <% const menuItems = [
+            { path: '/Dashboard', icon: 'bx bxs-dashboard', text: 'Dashboard', key: 'dashboard' },
+            { path: '/Control-Panel', icon: 'bx bxs-doughnut-chart', text: 'Control Panel', key: 'control-panel' },
+            { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' },
+            { path: '/Profile', icon: 'bx bxs-group', text: 'Users', key: 'profile' },
+            { path: '/AboutUs', icon: 'bx bxs-info-circle', text: 'AboutUs', key: 'aboutus' }
+        ]; %>
+
+        <% menuItems.forEach(item => { %>
+            <li class="<%= activeTab === item.key ? 'active' : '' %>">
+                <a href="<%= item.path %>">
+                    <i class='<%= item.icon %>'></i>
+                    <span class="text"><%= item.text %></span>
+                </a>
+            </li>
+        <% }); %>
+    </ul>
+    <ul class="side-menu">
+        <li>
+            <a href="#" class="logout" onclick="logout()">
+                <i class='bx bxs-log-out-circle'></i>
+                <span class="text">Logout</span>
+              </a>
+        </li>
+    </ul>
+</section>
+
+<script>
+    function logout() {
+      // Create a form dynamically
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/logout';
+  
+      // Append the form to the document body
+      document.body.appendChild(form);
+  
+      // Submit the form
+      form.submit();
+    }
+  </script>

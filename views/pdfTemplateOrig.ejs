@@ -1,0 +1,50 @@
+<!-- pdfTemplate.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+    h1 {
+      color: #3366AA;
+      text-align: center;
+    }
+    p {
+      text-align: justify;
+      margin-bottom: 10px;
+    }
+    .info-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+  <title>Sensor Data PDF</title>
+</head>
+<body>
+  <h1>Sensor Data PDF</h1>
+  <img src="http://192.168.2.24:3000/COE.png" alt="" style="width: 1.5in; height: 1.5in;">
+  <img src="http://192.168.2.24:3000/CES.jpg" alt="" style="width: 1.5in; height: 1.5in;">
+  
+  <div class="info-container">
+    <p class="label">User Name:</p>
+    <p><%= sensorData.UserName %></p>
+
+    <p class="label">User ID:</p>
+    <p><%= sensorData.UserID %></p>
+
+    <p class="label">Drying Title:</p>
+    <p><%= sensorData.DryingTitle %></p>
+  </div>
+  <!-- Add more sections as needed -->
+</body>
+</html>

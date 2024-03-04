@@ -1,0 +1,157 @@
+<div class="table-data">
+	<div class="order">
+		<div class="">
+			<h3>Profiles</h3>
+		</div>
+		<% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> <%= error %>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+        <% } else if ((typeof error !== 'undefined' && success)) { %>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Successfully!</strong> <%= success %>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+        <% } %>
+		<table id="ProfileTable">
+			<thead>
+				<tr>
+					<th class="text-center">#</th>
+					<th class="text-center">Profile</th>
+					<th class="text-center">ID Number#</th>
+					<th class="text-center">Phone Number#</th>
+					<th class="text-center">Role</th>
+					<th class="text-center">Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% MyProfile.forEach((profile, index) => { %>
+					<tr>
+						<td class="text-center">
+							<p2><%= index + 1 %>.</p2>
+							<p2><img src="<%= profile.ProfileImage?  profile.ProfileImage : '/Default.webp' %>"></p2>
+						</td>
+						<td class="text-center">
+							<p2><%= profile.FullName %></p2>
+						</td>
+						<td class="text-center"><%= profile.UnivStudID %></td>
+						<td class="text-center"><span><%= profile.PhoneNumber %></span></td>
+						<td class="text-center"><span><%= profile.Role %></span></td>
+						<td class="text-center">
+							<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#EditProfile<%= profile._id %>">Edit</button>
+							<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#Delete<%= profile._id %>">Delete</button>
+						</td>
+					</tr>
+				<% }); %>
+			</tbody>
+		</table>
+	</div>	
+</div>
+
+<% MyProfile.forEach(profile => { %>
+  <!-- Modal -->
+  <div class="modal fade" id="EditProfile<%= profile._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Profile</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST">
+                <!-- Modal Body Start -->
+                <div class="modal-body">
+                    <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                    <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+
+                    <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+					<input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= profile.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+					
+					<strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+					<input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+
+					<strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+					<input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+
+					<strong><label for="UserProfileImage" class="form-label mt-3">Profile Image</label></strong>
+					<input type="file" name="UserProfileImage" id="UserProfileImage" class="form-control" accept="image/jpeg, image/png" aria-describedby="imageHelpBlock">
+					<div id="imageHelpBlock" class="form-text">Upload a profile image (JPG, PNG, GIF, or BMP).</div>
+
+                    <!-- Selection for Manual or Automatic -->
+                    <strong><label class="form-label mt-3">Select Role:</label></strong> <label for="" style="font-style: italic;">(Select Carefully)</label>
+                    <select name="RoleSelect" id="RoleSelect" class="form-select">
+                        <option value="User" <%= profile.Role === 'User' ? 'selected' : '' %>>User</option>
+                        <option value="Admin" <%= profile.Role === 'Admin' ? 'selected' : '' %>>Admin</option>
+                    </select>
+                </div>
+                <!-- Modal Body End -->
+                <div class="modal-footer">
+                    <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                        <span id="alertMessage"></span>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-maroon">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+<% }); %>
+
+<% MyProfile.forEach(profile => { %>
+	<!-- Modal -->
+	<div class="modal fade" id="Delete<%= profile._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		  <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+			  <div class="modal-header">
+				  <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Profile</h1>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+  
+			  <form id="DeleteUserForm" action="/DeleteUser/<%= profile._id %>" method="POST">
+				  <!-- Modal Body Start -->
+				  <div class="modal-body">
+					<p>Are you sure you want to delete this profile? 
+						<table class="table">
+							<thead>
+							  <tr>
+								<th scope="col">Name</th>
+								<th scope="col" class="text-center">StudUnivID</th>
+								<th scope="col" class="text-center">Role</th>
+							  </tr>
+							</thead>
+							<tbody>
+							  <tr>
+								<td scope="row"><%= profile.FullName %></td>
+								<td scope="row" class="text-center"><%= profile.UnivStudID %></td>	
+								<td scope="row" class="text-center"><%= profile.Role %></td>
+							  </tr>
+							</tbody>
+						  </table>
+					</p>
+				  </div>
+				  <!-- Modal Body End -->
+				  <div class="modal-footer">
+					  <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+						  <span id="alertMessage"></span>
+					  </div>
+					  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					  <button type="submit" class="btn btn-maroon">Submit</button>
+				  </div>
+			  </form>
+		  </div>
+	  </div>
+	</div>
+  <% }); %>
+
+  <script>
+	$(document).ready(function() {
+	  $('#ProfileTable').DataTable({
+		responsive: true,
+		"style": "bootstrap5"
+	  });
+	});
+  </script>
+
+  
