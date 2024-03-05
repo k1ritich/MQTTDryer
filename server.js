@@ -202,6 +202,13 @@ Promise.all(subscribePromises)
             console.log('Message published successfully');
           }
         });
+        mqttClient.publish('MYMQTTDRYER/DryingData',"", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            console.log('Message published successfully');
+          }
+        });
         console.log('Data saved to MongoDB');
         const updateStartDrying = await StartDryingModel.findById(jsonData._id);
         if (!updateStartDrying) {
@@ -378,7 +385,7 @@ tabs.forEach(tab => {
           const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
           const firstActiveTimer = activeTimers.length > 0 ? activeTimers[0] : null;
           const timerInfo = firstActiveTimer
-            ? { ItemQuantity:firstActiveTimer.ItemQuantity, ItemName: firstActiveTimer.ItemName, id: firstActiveTimer._id, startTime: firstActiveTimer.startTime, endTime: firstActiveTimer.endTime }
+            ? { ItemQuantity:firstActiveTimer.ItemQuantity, ItemName: firstActiveTimer.ItemName, id: firstActiveTimer._id, startTime: firstActiveTimer.startTime, endTime: firstActiveTimer.endTime, TimeMode: firstActiveTimer.TimeMode }
             : null;
           renderTab(tab, res, timerInfo, null, null, req.session.user, error, success);
         } else if (tab.name === "Profile") {
@@ -574,23 +581,72 @@ app.post('/FinishDrying', async (req, res) => {
       ItemQuantity: activeTimer.ItemQuantity,
       Status: "Complete",
       startTime: activeTimer.startTime,
-      endTime: activeTimer.endTime,
+      endTime: activeTimer.TimeMode === "TIMER" ? activeTimer.endTime : new Date(),
       stopTime: new Date(),
       TimeMode: activeTimer.TimeMode,
       Temperature: Temperature,
       Humidity: Humidity,
       SubmitBy: req.session.user.FullName
-    };
+    };    
     console.log(mappedData);
 
     const sensorData = new SensorDataModel(mappedData);
     await sensorData.save();
+    activeTimer.Status = "Complete";
+    await activeTimer.save();
     console.log("Sensor data saved successfully!");
+
+    const PowerStates = {
+      HumidifierState: "OFF",
+      PowerState: "OFF",
+      OperationState: "OFF",
+    };
+    mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    mqttClient.publish('MYMQTTDRYER/DryingData',"", { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    mqttClient.publish('MYMQTTDRYER/FinishData',"", { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    mqttClient.publish('MYMQTTDRYER/TemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    mqttClient.publish('MYMQTTDRYER/RecordTemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    mqttClient.publish('MYMQTTDRYER/RecordPowerTopic',"", { qos: 2, retain: true }, (err) => {
+      if (err) {
+        console.error('Error publishing message:', err);
+      } else {
+        console.log('Message published successfully');
+      }
+    });
+    res.redirect('/Dashboard');
   } else {
     console.log("Active timer not found.");
   }
-
-  res.send('Finished drying data received');
 });
 app.post('/SaveData', async (req, res) => {
   try {

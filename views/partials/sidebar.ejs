@@ -72,12 +72,40 @@
                             <span id="alertMessage"></span>
                         </div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-maroon" onclick="return checkTimeValidity()">Submit</button>
+                        <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" onclick="return checkTimeValidity()">Submit</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Drying</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <form id="DeleteUserForm" action="" method="POST">
+                    <!-- Modal Body Start -->
+                    <div class="modal-body">
+                      <p>Are you sure you want to stop drying? 
+                      </p>
+                    </div>
+                    <!-- Modal Body End -->
+                    <div class="modal-footer">
+                        <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                            <span id="alertMessage"></span>
+                        </div>
+                        <button type="button" id="" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" id="StopDrying" style="background-color: #800000; color: white;" class="btn btn-maroon" class="btn btn-maroon">Finish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+
     <% } else if (activeTab === 'profile') { %>
     <div class=" modal fade" id="AddUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -124,17 +152,119 @@
                             <span id="alertMessage"></span>
                         </div>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-maroon">Submit</button>
+                        <button type="submit" class="btn btn-maroon" style="background-color: #800000; color: white;">Submit</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <% MyProfile.forEach(profile => { %>
+        <!-- Modal -->
+        <div class="modal fade" id="EditProfile<%= profile._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                  <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Profile</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+      
+                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST">
+                      <!-- Modal Body Start -->
+                      <div class="modal-body">
+                          <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                          <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+      
+                          <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                          <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= profile.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                          
+                          <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                          <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+      
+                          <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                          <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+      
+                          <strong><label for="UserProfileImage" class="form-label mt-3">Profile Image</label></strong>
+                          <input type="file" name="UserProfileImage" id="UserProfileImage" class="form-control" accept="image/jpeg, image/png" aria-describedby="imageHelpBlock">
+                          <div id="imageHelpBlock" class="form-text">Upload a profile image (JPG, PNG, GIF, or BMP).</div>
+      
+                          <!-- Selection for Manual or Automatic -->
+                          <strong><label class="form-label mt-3">Select Role:</label></strong> <label for="" style="font-style: italic;">(Select Carefully)</label>
+                          <select name="RoleSelect" id="RoleSelect" class="form-select">
+                              <option value="User" <%= profile.Role === 'User' ? 'selected' : '' %>>User</option>
+                              <option value="Admin" <%= profile.Role === 'Admin' ? 'selected' : '' %>>Admin</option>
+                          </select>
+                      </div>
+                      <!-- Modal Body End -->
+                      <div class="modal-footer">
+                          <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                              <span id="alertMessage"></span>
+                          </div>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-maroon">Submit</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+        </div>
+      <% }); %>
+
+      
+      
+      <% MyProfile.forEach(profile => { %>
+          <!-- Modal -->
+          <div class="modal fade" id="Delete<%= profile._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+        
+                    <form id="DeleteUserForm" action="/DeleteUser/<%= profile._id %>" method="POST">
+                        <!-- Modal Body Start -->
+                        <div class="modal-body">
+                          <p>Are you sure you want to delete this profile? 
+                              <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th scope="col">Name</th>
+                                      <th scope="col" class="text-center">StudUnivID</th>
+                                      <th scope="col" class="text-center">Role</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td scope="row"><%= profile.FullName %></td>
+                                      <td scope="row" class="text-center"><%= profile.UnivStudID %></td>	
+                                      <td scope="row" class="text-center"><%= profile.Role %></td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                          </p>
+                        </div>
+                        <!-- Modal Body End -->
+                        <div class="modal-footer">
+                            <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                                <span id="alertMessage"></span>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-maroon">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+      <% }); %>
     <% } %>
     
     <a href="#" class="brand">
         <img style="margin: 0px 20px 0px 10px;" src="public/img/CES.jpg" alt="Dryer Icon" width="32" height="32">
+        <% if (UserDetail.Role === 'Admin') {%>
         <span class="text">Admin Page</span>
+        <% } else if (UserDetail.Role === 'User') { %>
+            <span class="text">User Page</span>
+        <% }%>
     </a>
     <ul class="side-menu top">
         <% const menuItems = [
@@ -142,7 +272,6 @@
             { path: '/Control-Panel', icon: 'bx bxs-doughnut-chart', text: 'Control Panel', key: 'control-panel' },
             { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' },
             { path: '/Profile', icon: 'bx bxs-group', text: 'Users', key: 'profile' },
-            { path: '/AboutUs', icon: 'bx bxs-info-circle', text: 'AboutUs', key: 'aboutus' }
         ]; %>
 
         <% menuItems.forEach(item => { %>

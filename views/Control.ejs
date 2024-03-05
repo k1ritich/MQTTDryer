@@ -1,45 +1,469 @@
 <!-- MAIN -->
-<ul class="box-info">
 
-	<button style="border: 0px;">
-		<li class="group-a">
-			<i class='bx bxs-stopwatch' ></i>
+
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script>
+	const socket = io();
+	let activeSource = '';
+	let DHactiveSource = '';
+
+	socket.on('mqttMessage', (payload) => {
+			if (payload.topic === 'MYMQTTDRYER/TemperatureHumidityTopic') {
+				// console.log("Received from MYMQTTDRYER/TemperatureHumidityTopic");
+				const messageObj = JSON.parse(payload.message);
+				// console.log(`Temperature values:`);
+				for (let i = 0; i < messageObj.Temperature.length; i++) {
+					document.getElementById('Temperature' + i).value = messageObj.Temperature[i];
+					// console.log(`Index ${i}: ${messageObj.Temperature[i]}`);
+				}
+				// console.log(`Humidity values:`);
+				for (let i = 0; i < messageObj.Humidity.length; i++) {
+					document.getElementById('Humidity' + i).value = messageObj.Humidity[i];
+					// console.log(`Index ${i}: ${messageObj.Humidity[i]}`);
+				}
+			} else if (payload.topic === 'MYMQTTDRYER/StoreStateTopic') {
+				console.log("Received from MYMQTTDRYER/StoreStateTopic");
+				const messageObj = JSON.parse(payload.message);
+				console.log(`Power State: ${messageObj.PowerState}`);
+				activeSource = messageObj.PowerState;
+				DHactiveSource  = messageObj.HumidifierState;
+				if (messageObj.PowerState === 'BATTERY') {
+					console.log("BATTERY0")
+					document.getElementById("ACPower").value = "OFF";
+					document.getElementById("BattPower").value = messageObj.PowerState;
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				} else if (messageObj.PowerState === 'AC') {
+					console.log("AC")
+					document.getElementById("BattPower").value = "OFF";
+					document.getElementById("ACPower").value = messageObj.PowerState;
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				} else if (messageObj.PowerState === 'OFF') {
+					document.getElementById("BattPower").value = "OFF";
+					document.getElementById("ACPower").value = "OFF";
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				}
+				if (messageObj.HumidifierState === 'ON') {
+					console.log("BATTERY1")
+					DHactiveSource = messageObj.HumidifierState;
+					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
+				} else if (messageObj.HumidifierState === 'OFF') {
+					console.log("AC")
+					DHactiveSource = messageObj.HumidifierState;
+					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
+				}
+				if (messageObj.OperationState === 'AUTOMATIC') {
+					console.log("BATTERY2")
+					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
+					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
+					handleModeMessage(messageObj.OperationState)
+				} else if (messageObj.OperationState === 'MANUAL') {
+					console.log("AC")
+					document.getElementById("mode").value = "MANUAL";
+					handleModeMessage(messageObj.OperationState);
+				} else if (messageObj.OperationState === 'OFF') {
+					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "OFF");
+					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "OFF");
+					handleModeMessage(messageObj.OperationState)
+				}
+			} else if (payload.topic === "MYMQTTDRYER/RecordPowerTopic") {
+				const messageObj = JSON.parse(payload.message); //BattPowerVoltage
+				document.getElementById('BattPowerVoltage').value = messageObj.VoltageValue;
+			}
+		})
+
+	function ToggleDehumidifier(source) {
+		console.log('<%= UserDetail.FullName %>');
+		const DryingID = 'Control Panel'+'<%= UserDetail.FullName %>';
+
+		const modeValue = document.getElementById('mode').value;
+		const topic = 'MYMQTTDRYER/SwitchDehumidifierTopic';
+		socket.emit('publishMessage', { topic, message: source });
+
+		// Save data to MongoDB via the server
+		saveToMongo({
+			DehumidifierRelayState: DHactiveSource,
+			RelayState: source,  // Replace with the actual value for RelayState
+			DryingMode: modeValue,
+			DryingID: DryingID
+		});
+	};
+	
+	function switchSource(source) {
+		console.log('<%= UserDetail.FullName %>');
+		const DryingID = 'Control Panel'+'<%= UserDetail.FullName %>';
+
+		const modeValue = document.getElementById('mode').value;
+		const topic = 'MYMQTTDRYER/SwitchPowerTopic';
+		socket.emit('publishMessage', { topic, message: source });
+
+		// Save data to MongoDB via the server
+		saveToMongo({
+			DehumidifierRelayState: DHactiveSource,
+			RelayState: source,  // Replace with the actual value for RelayState
+			DryingMode: modeValue,
+			DryingID: DryingID
+		});
+	};
+	function switchSourceMode() {
+		// Ensure DryingID is properly assigned before calling this function
+		const DryingID ='Control Panel'+'<%= UserDetail.FullName %>';
+
+		const modeValue = document.getElementById('mode').value;
+		document.getElementById('acbutton').disabled = (modeValue === "AUTOMATIC");
+		document.getElementById('batterybutton').disabled = (modeValue === "AUTOMATIC");
+		const topic = 'MYMQTTDRYER/SwitchSourceModeTopic';
+		socket.emit('publishMessage', { topic, message: modeValue });
+
+		// Save data to MongoDB via the server
+		saveToMongo({
+			DehumidifierRelayState: activeSource,
+			RelayState: activeSource,
+			DryingMode: modeValue,
+			DryingID: DryingID
+		});
+	}
+
+
+	function saveToMongo(data) {
+		// Assuming you have a route on the server for saving data to MongoDB, replace '/SaveToMongo' with the correct route
+		const saveToMongoRoute = '/SaveToMongo';
+
+		// Send an HTTP POST request to the server
+		fetch(saveToMongoRoute, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		})
+			.then(response => response.text())
+			.then(message => console.log(message))
+			.catch(error => console.error('Error saving data to MongoDB:', error));
+	}
+
+
+
+	function handleSourceMessage(source) {
+		var acButton = document.getElementById('acbutton');
+		var batteryButton = document.getElementById('batterybutton');
+
+		// Update the background color of the AC and Battery buttons
+		if (source === 'AC') {
+			acli.style.backgroundColor = '#800000'; // Change this to your desired color
+			batli.style.backgroundColor = ''; // Reset battery button color
+		} else if (source === 'BATTERY') {
+			batli.style.backgroundColor = '#800000'; // Change this to your desired color
+			acli.style.backgroundColor = ''; // Reset AC button color
+		} else if (source === 'OFF'){
+			// Handle other cases or reset both buttons if needed
+			acli.style.backgroundColor = '';
+			batli.style.backgroundColor = '';
+		}
+	}
+
+	function DehumidifiierhandleSourceMessage(source) {
+
+		// Update the background color of the AC and Battery buttons
+		if (source === 'ON') {
+			dhli.style.backgroundColor = '#800000'; // Change this to your desired color
+		} else if (source === 'OFF'){
+			// Handle other cases or reset both buttons if needed
+			dhli.style.backgroundColor = '';
+		}
+	}
+
+	function handleModeMessage(mode) {
+		var modeSelect = document.getElementById('mode');
+		var acButton = document.getElementById('acbutton');
+		var batteryButton = document.getElementById('batterybutton');
+
+		modeSelect.value = mode;
+
+		// Enable or disable the AC and Battery buttons based on the mode
+		acButton.disabled = (mode === 'AUTOMATIC' || mode === 'OFF');
+		batteryButton.disabled = (mode === 'AUTOMATIC' || mode === 'OFF');
+
+	}
+</script>
+
+<div class="">
+	<div class="box-info">
+		<button id="batterybutton" style="border: 0px;" onclick="switchSource('BATTERY')">
+		<li class="group-a" id="batli">
+			<i class='bx bxs-car-battery'></i>
 			<span class="text">
-				<p class="text-a">Off</p>
+				<p class="text-a">Battery</p>
 			</span>
 		</li>
-	</button>
+		</button>
 
-	<button style="border: 0px;">
-	<li class="group-a">
-		<i class='bx bxs-sun' ></i>
-		<span class="text">
-			<p class="text-a">Solar</p>
-		</span>
-	</li>
-	</button>
+		<button id="acbutton" style="border: 0px;" onclick="switchSource('AC')">
+		<li class="group-a" id="acli">
+			<i class='bx bxs-bolt-circle' ></i>
+			<span class="text">
+				<p class="text-a">AC</p>
+			</span>
+		</li>
+		</button>
 
-	<button style="border: 0px;">
-	<li class="group-a">
-		<i class='bx bxs-bolt' ></i>
-		<span class="text">
-			<p class="text-a">AC</p>
-		</span>
-	</li>
-	</button>
+		<button id="DehumidifierButton" style="border: 0px;" onclick="ToggleDehumidifier('Toggle')">
+			<li class="group-a" id="dhli">
+				<i class="bx bi-moisture"></i>
+				<span class="text">
+					<p class="text-a">Dehumidifier</p>
+				</span>
+			</li>
+			</button>
+			
+		<li class="group-a" style="height: 128px;">
+			<i class='bx bxs-cog'></i>
+			<span class="text">
+				<!--<h3>$2543</h3>-->
+				<select id="mode" class="input-b" style="margin-top: 20px;" onchange="switchSourceMode()">
+					<option value="OFF">OFF</option>
+					<option value="AUTOMATIC">Automatic</option>
+					<option value="MANUAL">Manual</option>
+				</select>
+				<p class="text-b">Mode</p>
+			</span>
+		</li>
+	</div>
+</div>
 
+<form id="finishDryingForm" action="/FinishDrying" method="POST">
+	<div class="box-info">
+		<li style="overflow: hidden;">
+			<i class='bx bx-baguette' ></i>
+			<span class="text">
+				<% if (timerInfo) { %>
+					<p>Item</p>
+					<div class="overflow-y-hidden"><%= timerInfo.ItemName %></div>
+					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b">
+					<input type="text" value="<%= timerInfo.ItemName %>" style="overflow: hidden;margin-top: 20px;"name="ItemName" id="name" class="input-b" hidden>
+				<% } else { %>
+					<!-- Handle the case where timerInfo is null -->
+					<p>Item</p>
+					<p>No item being dry.</p>
+				<% } %>
+			</span>
+		</li>
+		<li>
+			<i class='bx bi-infinity'></i>
+			<span class="text">
+			<% if (timerInfo) { %>
+				<p>Quantity</p>
+				<div class="overflow-y-hidden"><%= timerInfo.ItemQuantity %></div>
+				<input type="datetime" value="<%= timerInfo.ItemQuantity %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+			<% } else { %>
+				<!-- Handle the case where timerInfo is null -->
+				<p>Quantity</p>
+				<p>No item being dry.</p>
+			<% } %>
+			</span>
+		</li>
+		<li>
+			<i class='bx bi-hourglass-top'></i>
+			<span class="text">
+				<% if (timerInfo) { %>
+					<p>Start Time</p>
+					<div class="overflow-y-hidden"><%= timerInfo.startTime %></div>
+					<input type="datetime" value="<%= timerInfo.startTime %>" style="overflow-x: auto; margin-top: 20px;" name="startTime" id="name" class="input-b" hidden>
+				<% } else { %>
+					<!-- Handle the case where timerInfo is null -->
+					<p>Start Time</p>
+					<p>No active timer.</p>
+				<% } %>
+			</span>
+		</li>
+		<li>
+			<i class='bx bi-hourglass-bottom'></i>
+			<span class="text">
+			<% if (timerInfo) { %>
+				<p>End Time</p>
+				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
+				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+				<input type="text" value="<%= timerInfo.TimeMode %>" style="overflow-wrap: auto; margin-top: 20px;" name="TimeMode" id="name" class="input-b" hidden>
+			<% } else { %>
+				<!-- Handle the case where timerInfo is null -->
+				<p>End Time</p>
+				<p>No active timer.</p>
+			<% } %>
+			</span>
+		</li>
+	</div>
+	<div class="table-data">
+		<div class="todo" style="overflow: hidden;">
+			<div class="head">
+				<h3>Environment Data</h3>
+			</div>
+				<div class="formbold-input-group">
+					<label for="Humidity" class="formbold-form-label">Average Humidity (%)</label>
+					<input type="text" value="N/A" name="Humidity12" id="Humidity12" class="input form-control" readonly>
+				</div>
 		
-	<li class="group-b" style="height: 128px;">
-		<i class='bx bxs-hourglass-bottom' ></i>
-		<span class="text">
-			<!--<h3>$2543</h3>-->
-			<select class="input-b" style="margin-top: 20px;">
-				<option value="">Off</option>
-				<option value="automatic">Automatic</option>
-				<option value="manual">Manual</option>
-			</select>
-			<p class="text-b">Mode</p>
-		</span>
-	</li>
-</ul>
+				<div class="formbold-input-group">
+					<label for="Temperature" class="formbold-form-label">Avergae Temperature (&deg;C)</label>
+					<input type="text" value="N/A" name="Temperature12" id="Temperature12" class="input form-control" readonly>
+				</div>
+		</div>
+
+		<!-- BATTERY POWER INFORMATION -->
+		<div class="todo" style="overflow: hidden;">
+			<div class="head">
+				<h3>Batt. Information</h3>
+			</div>
+
+			<div class="formbold-input-group">
+				<label for="BattPower" class="formbold-form-label">Batt. Power Source</label>
+				<input type="text" value="N/A" name="BattPower" id="BattPower" class="input form-control" readonly>
+				</div>
+		
+				<div class="formbold-input-group">
+				<label for="BattPowerVoltage" class="formbold-form-label">Present Voltage Read</label>
+				<input type="text" value="N/A" name="BattPowerVoltage" id="BattPowerVoltage" class="input form-control" readonly>
+				</div>
+
+		</div>
+
+		<!-- AC POWER INFORMATION -->
+		<div class="todo" style="overflow: hidden;">
+			<div class="head">
+				<h3>AC Information</h3>
+			</div>
+
+			<div class="formbold-input-group">
+				<label for="ACPower" class="formbold-form-label">AC Power Source</label>
+				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input form-control" readonly>
+			</div>
+
+			<div class="formbold-input-group">
+				<label for="ACPowerUsage" class="formbold-form-label">Power Usage Over Time (Initial/Current)</label>
+			</div>
+			<div class="input-group">
+				<input value="N/A" type="text" aria-label="First name" id="InitialACPowerUsage" class="input form-control text-center" readonly>
+				<input value="N/A" type="text" aria-label="First name" id="CurrentACPowerUsage" style="border: 0px;" class="input form-control text-center" readonly>
+			</div>
+		</div>
+	</div>
+
+
+<div class="table-data">
+	<div class="order">
+		<div class="">
+			<h3>Temperature/Humidity 
+				<a 
+				style="z-index: 3000;"
+				tabindex="0" 
+				class="btn btn-outline-warning"  
+				role="button" 
+				data-bs-toggle="popover" 
+				data-bs-trigger="focus" 
+				data-bs-title="Legends" 
+				data-bs-content="U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)"><i class="bi bi-question-circle"></i>
+				</a>
+			</h3>
+		</div>
+		<table id="ProfileTable">
+			<thead>
+				<tr>
+					<th>
+						<td class="text-center">
+							<div class="input-group">
+								<input value="Position" type="text" aria-label="First name" style="border: 0px; border-top: #800000 solid 10px; border-left: #800000 solid 10px" class="form-control text-center" readonly disabled>
+								<input value="Front" type="text" aria-label="First name" style="border: 0px; border-top: #800000 solid 10px;" class="form-control text-center" readonly disabled>
+								<input value="Center" type="text" aria-label="Last name" style="border: 0px; border-top: #800000 solid 10px;" class="form-control text-center" readonly disabled>
+								<input value="Rear" type="text" aria-label="Last name" style="border: 0px; border-top: #800000 solid 10px;" class="form-control text-center" readonly disabled>
+							</div>
+						</td>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>
+						<td class="text-center">
+							<div class="input-group">
+								<input value="U.R TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature0" name="Temperature0" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature1" name="Temperature1" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature2" name="Temperature2" class="form-control text-center" readonly>
+							</div>
+							<div class="input-group">
+								<input value="U.R RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity0" name="Humidity0" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity1" name="Humidity1" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity2" name="Humidity2" class="form-control text-center" readonly>
+							</div>
+						</td>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<td class="text-center">
+							<div class="input-group">
+								<input value="B.R TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature3" name="Temperature3" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature4" name="Temperature4" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature5" name="Temperature5" class="form-control text-center" readonly>
+							</div>
+							<div class="input-group">
+								<input value="B.R RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity3" name="Humidity3" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity4" name="Humidity4" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity5" name="Humidity5" class="form-control text-center" readonly>
+							</div>
+						</td>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<td class="text-center">
+							<div class="input-group">
+								<input value="U.L TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature6" name="Temperature6" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature7" name="Temperature7" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature8" name="Temperature8" class="form-control text-center" readonly>
+							</div>
+							<div class="input-group">
+								<input value="U.L RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity6" name="Humidity6" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity7" name="Humidity7" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity8" name="Humidity8" class="form-control text-center" readonly>
+							</div>
+						</td>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<td class="text-center">
+							<div class="input-group">
+								<input value="B.L TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature9" name="Temperature9" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature10" name="Temperature10" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature11" name="Temperature11" class="form-control text-center" readonly>
+							</div>
+							<div class="input-group">
+								<input value="B.L RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity9" name="Humidity9" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity10" name="Humidity10" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity11" name="Humidity11" class="form-control text-center" readonly>
+							</div>
+						</td>
+					</th>
+				</tr>
+			</tbody>	
+		</table>
+	</div>	
+</div>
+</form>
+
+<script>
+	function helloWorld() {
+    const topic = 'MYMQTTDRYER/GetHumidityTemp';
+	socket.emit('publishMessage', { topic, message: "GETHumidityTemperature" });
+}
+</script>
 <!-- MAIN -->
