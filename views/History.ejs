@@ -41,8 +41,8 @@
 					</td>
 					<td class="text-center"><%= onGoingTimers.DryingTitle %></td>
 					<td class="text-center"><span><%= onGoingTimers.ItemQuantity %></span></td>
-					<td class="text-center"><span><%= new Date(onGoingTimers.startTime).toLocaleString()%></span></td>
-					<td class="text-center"><span><%= onGoingTimers.endTime ? new Date(onGoingTimers.endTime).toLocaleString() : 'N/A' %></span></td>
+					<td class="text-center"><span><%= new Date(onGoingTimers.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) %></span></td>
+					<td class="text-center"><span><%= onGoingTimers.endTime ? new Date(onGoingTimers.endTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) : 'N/A' %></span></td>
 					<td class="text-center"><span id=></span></td>
 					<% if (onGoingTimers.Status === 'Complete') { %>
 					<td class="text-center"><span class="status completed">Complete</span></td>
