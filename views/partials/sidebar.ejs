@@ -270,10 +270,14 @@
         <% const menuItems = [
             { path: '/Dashboard', icon: 'bx bxs-dashboard', text: 'Dashboard', key: 'dashboard' },
             { path: '/Control-Panel', icon: 'bx bxs-doughnut-chart', text: 'Control Panel', key: 'control-panel' },
-            { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' },
-            { path: '/Profile', icon: 'bx bxs-group', text: 'Users', key: 'profile' },
-        ]; %>
-
+            { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' }
+        ];
+    
+        if (UserDetail.Role === 'Admin') {
+            menuItems.push({ path: '/Profile', icon: 'bx bxs-group', text: 'Users', key: 'profile' });
+        }
+        %>
+    
         <% menuItems.forEach(item => { %>
             <li class="<%= activeTab === item.key ? 'active' : '' %>">
                 <a href="<%= item.path %>">
@@ -283,6 +287,7 @@
             </li>
         <% }); %>
     </ul>
+    
     <ul class="side-menu">
         <li>
             <a href="#" class="logout" onclick="logout()">

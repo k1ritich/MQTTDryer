@@ -30,10 +30,41 @@
 				</tr>
 			</thead>
 			<tbody>
+				<% if (onGoingTimers) { %>
+				<tr>
+					<td class="text-center">
+						<p2>1.</p2>
+						<p2><img src="<%= onGoingTimers.UserProfPic?  onGoingTimers.UserProfPic : '/Default.webp' %>"></p2>
+					</td>
+					<td class="text-center">
+						<p2><%= onGoingTimers.UserName %></p2>
+					</td>
+					<td class="text-center"><%= onGoingTimers.DryingTitle %></td>
+					<td class="text-center"><span><%= onGoingTimers.ItemQuantity %></span></td>
+					<td class="text-center"><span><%= new Date(onGoingTimers.startTime).toLocaleString()%></span></td>
+					<td class="text-center"><span><%= onGoingTimers.endTime ? new Date(onGoingTimers.endTime).toLocaleString() : 'N/A' %></span></td>
+					<td class="text-center"><span id=></span></td>
+					<% if (onGoingTimers.Status === 'Complete') { %>
+					<td class="text-center"><span class="status completed">Complete</span></td>
+					<% } else if (onGoingTimers.Status === 'On-going') {%>
+					<td class="text-center"><span class="status pending">On-going</span></td>
+					<% } else if (onGoingTimers.Status === 'Overtime') {%>
+					<td class="text-center"><span class="status process">Overtime</span></td>
+					<% }%> 
+					<td class="text-center">
+						<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger" id="">Download</button>
+					</td>
+				</tr>
+				<% } %>
+				
 				<% MyHistory.forEach((history, index) => { %>
 					<tr>
 						<td class="text-center">
+							<% if (onGoingTimers) { %>
+								<p2><%= index + 2 %>.</p2>
+							<% } else {  %>
 							<p2><%= index + 1 %>.</p2>
+							<% } %>
 							<p2><img src="<%= history.UserProfPic?  history.UserProfPic : '/Default.webp' %>"></p2>
 						</td>
 						<td class="text-center">
@@ -48,8 +79,8 @@
 						<td class="text-center"><span class="status completed">Complete</span></td>
 						<% } else if (history.Status === 'On-going') {%>
 						<td class="text-center"><span class="status pending">On-going</span></td>
-						<% } else if (history.Status === 'Process') {%>
-						<td class="text-center"><span class="status process">Halted</span></td>
+						<% } else if (history.Status === 'Overtime') {%>
+						<td class="text-center"><span class="status process">Overtime</span></td>
 						<% }%> 
 						<td class="text-center">
 							<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger" id="downloadPDFButton<%= history._id%>">Download</button>

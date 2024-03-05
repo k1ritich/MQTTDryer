@@ -355,7 +355,7 @@ app.get('/template', (req, res) => {
 
 
 
-function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, UserDetail, error = null, success = null) {
+function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, onGoingTimers= null, UserDetail, error = null, success = null) {
   res.render(`${__dirname}/views/index`, {
     title: tab.name,
     activeTab: tab.name.toLowerCase(),
@@ -366,6 +366,7 @@ function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = nul
     UserDetail: UserDetail,
     MyProfile: MyProfile,
     MyHistory: MyHistory,
+    onGoingTimers: onGoingTimers,
     error: error,
     success: success,
   });
@@ -387,17 +388,18 @@ tabs.forEach(tab => {
           const timerInfo = firstActiveTimer
             ? { ItemQuantity:firstActiveTimer.ItemQuantity, ItemName: firstActiveTimer.ItemName, id: firstActiveTimer._id, startTime: firstActiveTimer.startTime, endTime: firstActiveTimer.endTime, TimeMode: firstActiveTimer.TimeMode }
             : null;
-          renderTab(tab, res, timerInfo, null, null, req.session.user, error, success);
+          renderTab(tab, res, timerInfo, null, null, null, req.session.user, error, success);
         } else if (tab.name === "Profile") {
           const Myprofile = await CreateProfilesModel.find().sort({ createdAt: -1 });
           // console.log('Fetched Profiles:', Myprofile);
-          renderTab(tab, res, null, Myprofile, null, req.session.user, error, success);
+          renderTab(tab, res, null, Myprofile, null, null, req.session.user, error, success);
         } else if (tab.name === "History") {
+          const onGoingTimers = await StartDryingModel.findOne({ Status: "On-going" });
           const MyHistory = await SensorDataModel.find().sort({ createdAt: -1 });
           // console.log('Fetched Profiles:', Myprofile);
-          renderTab(tab, res, null, null, MyHistory, req.session.user, error, success);
+          renderTab(tab, res, null, null, MyHistory, onGoingTimers, req.session.user, error, success);
         } else {
-          renderTab(tab, res, null, null, null, req.session.user, error, success);
+          renderTab(tab, res, null, null, null, null, req.session.user, error, success);
         }
       }
       else {

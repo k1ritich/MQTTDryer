@@ -562,7 +562,7 @@
 
     if (isNaN(days) || isNaN(hours) || isNaN(minutes) || days < 0 || hours < 0 || minutes < 0) {
         // If any of the values are invalid, show an alert
-        document.getElementById('alertMessage').innerText = "Please enter valid numeric and non-negative values for days, hours, and minutes.";
+        document.getElementById('alertMessage').innerText = "Please enter a number greater than '0' for days, hours, and minutes.";
         document.getElementById('alert').style.display = 'block';
         return false; // Prevent form submission
     }
