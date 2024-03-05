@@ -1,22 +1,35 @@
 <!-- NAVBAR -->
 <nav>
-    <input type="text" name="" id="" value="<%= UserDetail._id%>">
     <i class='bx bx-menu' ></i>
     <a href="/Dashboard" class="nav-link">Home</a>
     <form action="#">
-        <div class="form-input">
-            <input type="search" placeholder="Search...">
-            <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
-        </div>
     </form>
     <input type="checkbox" id="switch-mode" hidden>
     <!-- <label for="switch-mode" class="switch-mode"></label> Dark Mode -->
-    <a href="#" class="notification">
-        <i class='bx bxs-bell' ></i>
-        <span class="num">8</span>
-    </a>
-    <a href="#" class="profile">
-        <img src="<%= UserDetail.ProfileImage%>">
-    </a>
+    <!-- Button trigger modal -->
+<a href="#" class="profile" data-bs-toggle="modal" data-bs-target="#profileModal">
+    <img src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
+</a>
+
+<!-- Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add content for user profile here -->
+                <img src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
+                <!-- You can add more profile information here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </nav>
 <!-- NAVBAR -->

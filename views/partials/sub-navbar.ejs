@@ -15,7 +15,7 @@
 
         <% if (activeTab === 'dashboard') { %>
             <% if (timerInfo) { %>
-                <button type="button" class="btn btn-warning" id="StopDrying" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                <button type="button" class="btn btn-warning" id="" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                     <i class="bi bi-stop-circle"></i> Stop Drying
                 </button>
             <% } else { %>   
@@ -25,6 +25,9 @@
             <% } %>
         <% } %>
     </div>
+    
+
+    
     
 
 
@@ -38,6 +41,12 @@
             <i class='bx bxs-cloud-download'></i>
             <span class="text">Download PDF</span>
         </a>
-    <% } else if (activeTab === 'dashboard'){ %>
+    <% } else if (activeTab === 'control-panel'){ %>
+        <a href="#" class="btn-download" onclick="helloWorld()">
+            <i class="bi bi-thermometer bx bi-moisture"></i>
+            <span class="text">Update Temperature/Humidity</span>
+            <i class="bx bi-moisture"></i>
+            
+        </a>
     <% } %>
 </div>

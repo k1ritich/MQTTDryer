@@ -311,6 +311,7 @@
 				<p>End Time</p>
 				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
 				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+				<input type="text" value="<%= timerInfo.TimeMode %>" style="overflow-wrap: auto; margin-top: 20px;" name="TimeMode" id="name" class="input-b" hidden>
 			<% } else { %>
 				<!-- Handle the case where timerInfo is null -->
 				<p>End Time</p>
