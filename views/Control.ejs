@@ -71,6 +71,10 @@
 			} else if (payload.topic === "MYMQTTDRYER/RecordPowerTopic") {
 				const messageObj = JSON.parse(payload.message); //BattPowerVoltage
 				document.getElementById('BattPowerVoltage').value = messageObj.VoltageValue;
+			} else if (payload.topic === "MYMQTTDRYER/HumidityRecDisc") {
+				const messageObj = JSON.parse(payload.message);
+				document.getElementById('HumidityReconnect').value = messageObj.HumidityReconnect;
+				document.getElementById('HumidityDisconnect').value = messageObj.HumidityDisconnect;
 			}
 		})
 
@@ -188,6 +192,22 @@
 
 	}
 </script>
+
+<div class="row g-2">
+	<div class="col-md">
+		<div class="form-floating">
+			<input type="text" class="form-control" id="HumidityReconnect" placeholder="HumidityReconnect" value="N/A">
+			<label for="HumidityReconnect">Humidity Reconnect</label>
+		</div>
+	</div>
+	<div class="col-md">
+		<div class="form-floating">
+			<input type="text" class="form-control" id="HumidityDisconnect" placeholder="HumidityDisconnect" value="N/A">
+			<label for="HumidityDisconnect">Humidity Disconnect</label>
+		</div>
+	</div>
+	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Humidity Control</button>
+</div>
 
 <div class="">
 	<div class="box-info">
@@ -339,13 +359,13 @@
 				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input form-control" readonly>
 			</div>
 
-			<div class="formbold-input-group">
+			<!-- <div class="formbold-input-group">
 				<label for="ACPowerUsage" class="formbold-form-label">Power Usage Over Time (Initial/Current)</label>
 			</div>
 			<div class="input-group">
 				<input value="N/A" type="text" aria-label="First name" id="InitialACPowerUsage" class="input form-control text-center" readonly>
 				<input value="N/A" type="text" aria-label="First name" id="CurrentACPowerUsage" style="border: 0px;" class="input form-control text-center" readonly>
-			</div>
+			</div> -->
 		</div>
 	</div>
 
@@ -464,6 +484,38 @@
 	function helloWorld() {
     const topic = 'MYMQTTDRYER/GetHumidityTemp';
 	socket.emit('publishMessage', { topic, message: "GETHumidityTemperature" });
+}
+</script>
+
+<script>
+function sendDisconnectMessage() {
+    const topic = 'MYMQTTDRYER/HumidityRecDisc';
+    const disconnectValue = document.getElementById('HumidityDisconnect').value;
+    const connectValue = document.getElementById('HumidityReconnect').value;
+
+    // Check if the input values are numbers
+    if (isNaN(disconnectValue) || isNaN(connectValue)) {
+        // Show a bootstrap error
+        alert('Please enter valid numbers for Humidity Disconnect and Humidity Reconnect.');
+        return;
+    }
+
+    // Check if the reconnect value is higher than the disconnect value
+    if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
+        // Show a bootstrap error
+        alert('Humidity Reconnect value should be higher than Humidity Disconnect value.');
+        return;
+    }
+
+    // Check if the input values are less than or equal to 100
+    if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
+        // Show a bootstrap error
+        alert('Please enter valid numbers less than or equal to 100 for Humidity Disconnect and Humidity Reconnect.');
+        return;
+    }
+
+    const message = JSON.stringify({ HumidityDisconnect: parseFloat(disconnectValue), HumidityReconnect: parseFloat(connectValue) });
+    socket.emit('publishHum', { topic, message });
 }
 </script>
 <!-- MAIN -->
