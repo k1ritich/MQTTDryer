@@ -6,11 +6,11 @@ const Schema = mongoose.Schema;
 const TimerSchema = new Schema({
     UserName: {
         type: String,
-        required: false
+        required: true
     },
     UserID: {
         type: String,
-        required: false
+        required: true
     },
     UserProfPic: {
         type: String,
@@ -18,163 +18,163 @@ const TimerSchema = new Schema({
     },
     DryingTitle: {
         type: String,
-        required: false
+        required: true
     },
     ItemName: {
         type: String,
-        required: false
+        required: true
     },
     ItemQuantity: {
         type: Number,
-        required: false
+        required: true
     },
     TimeMode: {
         type: String,
-        required: false
+        required: true
     },
     Status: {
         type: String,
-        required: false
+        required: true
     },
     startTime: {
         type: Date,
-        required: false
+        required: true
     },
     endTime: {
         type: Date,
         required: false
     }
-}, { timestamps: false });
+}, { timestamps: true });
 
 const RelayState = new Schema ({
     DryingID: {
         type: String,
-        required: false
+        required: true
     },
     DryingMode: {
         type: String,
-        required: false
+        required: true
     },
     RelayState: {
         type: String,
-        required: false
+        required: true
     },
     DehumidifierRelayState: {
         type: String,
-        required: false
+        required: true
     }
-}, { timestamps: false });
+}, { timestamps: true });
 
 const DryingDetailSchema = new Schema({
     // User Data
     DryingID: {
         type: String,
-        required: false
+        required: true
     },
     ItemName: {
         type: String,
-        required: false
+        required: true
     },
     ItemQuantity: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     startTime: {
         type: Date,
-        required: false
+        required: true
     },
     endTime: {
         type: Date,
-        required: false
+        required: true
     },
 
     // Environment Data
     Humidity: {
         type: Number, // Assuming humidity is a number, adjust if necessary
-        required: false
+        required: true
     },
 
     Temperature: {
         type: Number, // Assuming temperature is a number, adjust if necessary
-        required: false
+        required: true
     },
 
     LightIntensity: {
         type: Number, // Assuming light is a number, adjust if necessary
-        required: false
+        required: true
     },
 
     // Battery Power Information
     BattPower: {
         type: String, //
-        required: false
+        required: true
     },
     BattPowerUsage: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     BattPowerVoltage: {
         type: Number, // 
-        required: false
+        required: true
     },
     BattPowerCurrent: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     // Add battery-related properties here
 
     // Battery Power Information
     ACPower: {
         type: String, // 
-        required: false 
+        required: true 
     },
     ACPowerUsage: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     ACPowerVoltage: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     ACPowerCurrent: {
         type: String, // it should be "Number"
-        required: false
+        required: true
     },
     // Add battery-related properties here
-}, { timestamps: false });
+}, { timestamps: true });
 
 const UserDetailSchema = new Schema({
     // User Data
     User: {
         type: String,
-        required: false
+        required: true
     },
     Item: {
         type: String,
-        required: false
+        required: true
     },
     StartTime: {
         type: String,
-        required: false
+        required: true
     },
     EndTime: {
         type: String // Add other properties as needed
     },
-}, { timestamps: false });
+}, { timestamps: true });
 
 const SensorDataSchema = new Schema({
     // User Data
     UserName: {
       type: String,
-      required: false,
+      required: true,
     },
     UserID: {
       type: String,
-      required: false,
+      required: true,
     },
     Drying_id: {
       type: String,
-      required: false,
+      required: true,
     },
     UserProfPic: {
         type: String,
@@ -182,104 +182,104 @@ const SensorDataSchema = new Schema({
     },
     SubmitBy: {
         type: String,
-        required: false,
+        required: true,
     },
     DryingTitle: {
       type: String,
-      required: false,
+      required: true,
     },
     ItemName: {
       type: String,
-      required: false,
+      required: true,
     },
     ItemQuantity: {
       type: Number,
-      required: false,
+      required: true,
     },
     Status: {
       type: String,
-      required: false,
+      required: true,
     },
     startTime: {
       type: Date,
-      required: false,
+      required: true,
     },
     endTime: {
       type: Date,
-      required: false,
+      required: true,
     },
     stopTime: {
         type: Date,
-        required: false,
+        required: true,
     },
     TimeMode: {
       type: String,
-      required: false,
+      required: true,
     },
     Temperature: {
         type: [Number],
-        required: false,
+        required: true,
     },
     Humidity: {
         type: [Number],
-        required: false,
+        required: true,
     },
-}, { timestamps: false });
+}, { timestamps: true });
 
 const ESPDetails = new Schema({
     ItemName: {
         type: String,
-        required: false
+        required: true
     },
     ItemQuantity: {
         type: Number,
-        required: false
+        required: true
     },
     startTime: {
         type: Date,
-        required: false
+        required: true
     },
     endTime: {
         type: Date,
-        required: false
+        required: true
     }
 });
 
 const CreateProfile = new mongoose.Schema({
     CreatedBy: {
         type: String,
-        required: false
+        required: true
     },
     CreatedByUserID: {
         type: String,
-        required: false
+        required: true
     },
     FullName: {
         type: String,
-        required: false
+        required: true
     },
     UnivStudID: {
         type: String,
-        required: false
+        required: true
     },
     EmailAddress: {
         type: String,
-        required: false
+        required: true
     },
     PhoneNumber: {
         type: Number,
-        required: false
+        required: true
     },
     SecurityKey: {
         type: String,
-        required: false
+        required: true
     },
     ProfileImage: {
         type: String,
     },
     Role: {
         type: String,
-        required: false
+        required: true
     }
   });
   
