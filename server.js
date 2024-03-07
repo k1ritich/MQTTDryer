@@ -1,5 +1,5 @@
 // app.js
-const morgan = require('morgan'); // Debugg
+// const morgan = require('morgan'); // Debugg
 const bcrypt = require('bcrypt'); //For Encrypting Password
 const express = require('express');
 const session = require('express-session');
@@ -124,7 +124,7 @@ Promise.all(subscribePromises)
   });
 
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(morgan('dev'));
+  // app.use(morgan('dev'));
   app.use(express.json());
   app.set('view engine', 'ejs');
 
