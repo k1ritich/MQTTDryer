@@ -254,66 +254,6 @@
 </div>
 
 <form id="finishDryingForm" action="/FinishDrying" method="POST">
-	<div class="box-info">
-		<li style="overflow: hidden;">
-			<i class='bx bx-baguette' ></i>
-			<span class="text">
-				<% if (timerInfo) { %>
-					<p>Item</p>
-					<div class="overflow-y-hidden"><%= timerInfo.ItemName %></div>
-					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b">
-					<input type="text" value="<%= timerInfo.ItemName %>" style="overflow: hidden;margin-top: 20px;"name="ItemName" id="name" class="input-b" hidden>
-				<% } else { %>
-					<!-- Handle the case where timerInfo is null -->
-					<p>Item</p>
-					<p>No item being dry.</p>
-				<% } %>
-			</span>
-		</li>
-		<li>
-			<i class='bx bi-infinity'></i>
-			<span class="text">
-			<% if (timerInfo) { %>
-				<p>Quantity</p>
-				<div class="overflow-y-hidden"><%= timerInfo.ItemQuantity %></div>
-				<input type="datetime" value="<%= timerInfo.ItemQuantity %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
-			<% } else { %>
-				<!-- Handle the case where timerInfo is null -->
-				<p>Quantity</p>
-				<p>No item being dry.</p>
-			<% } %>
-			</span>
-		</li>
-		<li>
-			<i class='bx bi-hourglass-top'></i>
-			<span class="text">
-				<% if (timerInfo) { %>
-					<p>Start Time</p>
-					<div class="overflow-y-hidden"><%= timerInfo.startTime %></div>
-					<input type="datetime" value="<%= timerInfo.startTime %>" style="overflow-x: auto; margin-top: 20px;" name="startTime" id="name" class="input-b" hidden>
-				<% } else { %>
-					<!-- Handle the case where timerInfo is null -->
-					<p>Start Time</p>
-					<p>No active timer.</p>
-				<% } %>
-			</span>
-		</li>
-		<li>
-			<i class='bx bi-hourglass-bottom'></i>
-			<span class="text">
-			<% if (timerInfo) { %>
-				<p>End Time</p>
-				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
-				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
-				<input type="text" value="<%= timerInfo.TimeMode %>" style="overflow-wrap: auto; margin-top: 20px;" name="TimeMode" id="name" class="input-b" hidden>
-			<% } else { %>
-				<!-- Handle the case where timerInfo is null -->
-				<p>End Time</p>
-				<p>No active timer.</p>
-			<% } %>
-			</span>
-		</li>
-	</div>
 	<div class="table-data">
 		<div class="todo" style="overflow: hidden;">
 			<div class="head">
