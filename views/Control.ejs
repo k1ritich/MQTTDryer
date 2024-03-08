@@ -488,34 +488,34 @@
 </script>
 
 <script>
-function sendDisconnectMessage() {
-    const topic = 'MYMQTTDRYER/HumidityRecDisc';
-    const disconnectValue = document.getElementById('HumidityDisconnect').value;
-    const connectValue = document.getElementById('HumidityReconnect').value;
+	function sendDisconnectMessage() {
+		const topic = 'MYMQTTDRYER/HumidityRecDisc';
+		const disconnectValue = document.getElementById('HumidityDisconnect').value;
+		const connectValue = document.getElementById('HumidityReconnect').value;
 
-    // Check if the input values are numbers
-    if (isNaN(disconnectValue) || isNaN(connectValue)) {
-        // Show a bootstrap error
-        alert('Please enter valid numbers for Humidity Disconnect and Humidity Reconnect.');
-        return;
-    }
+		// Check if the input values are numbers
+		if (isNaN(disconnectValue) || isNaN(connectValue)) {
+			// Show a bootstrap error
+			alert('Please enter valid numbers for Humidity Disconnect and Humidity Reconnect.');
+			return;
+		}
 
-    // Check if the reconnect value is higher than the disconnect value
-    if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
-        // Show a bootstrap error
-        alert('Humidity Reconnect value should be higher than Humidity Disconnect value.');
-        return;
-    }
+		// Check if the reconnect value is higher than the disconnect value
+		if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
+			// Show a bootstrap error
+			alert('Humidity Reconnect value should be higher than Humidity Disconnect value.');
+			return;
+		}
 
-    // Check if the input values are less than or equal to 100
-    if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
-        // Show a bootstrap error
-        alert('Please enter valid numbers less than or equal to 100 for Humidity Disconnect and Humidity Reconnect.');
-        return;
-    }
+		// Check if the input values are less than or equal to 100
+		if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
+			// Show a bootstrap error
+			alert('Please enter valid numbers less than or equal to 100 for Humidity Disconnect and Humidity Reconnect.');
+			return;
+		}
 
-    const message = JSON.stringify({ HumidityDisconnect: parseFloat(disconnectValue), HumidityReconnect: parseFloat(connectValue) });
-    socket.emit('publishHum', { topic, message });
-}
+		const message = JSON.stringify({ HumidityDisconnect: parseFloat(disconnectValue), HumidityReconnect: parseFloat(connectValue) });
+		socket.emit('publishHum', { topic, message });
+	}
 </script>
 <!-- MAIN -->
