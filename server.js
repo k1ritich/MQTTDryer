@@ -567,7 +567,7 @@ app.post('/FinishDrying', async (req, res) => {
   // console.log(req.body);
   const Temperature = [];
   const Humidity = [];
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 14; i++) {
     Temperature[i] = req.body[`Temperature${i}`];
     Humidity[i] = req.body[`Humidity${i}`];
   }
