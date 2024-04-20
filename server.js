@@ -17,6 +17,8 @@ const PDFDocument = require('pdfkit');
 const pdf = require('html-pdf');
 const Docxtemplater = require('docxtemplater');
 const JSZip = require('jszip'); // Import JSZip
+const cron = require('node-cron');
+const axios = require('axios');
 require('dotenv').config();
 
 app.use(session({
@@ -718,11 +720,6 @@ app.get('/getdata', async (req, res) => {
   }
 });
 
-
-app.post('/ESP32', async (req, res) => {
-  // console.log(req.body);
-});
-
 app.post('/AddUser', upload.single('UserProfileImage'), async (req, res) => {
   try {
     // Log the request body
@@ -769,8 +766,6 @@ app.post('/AddUser', upload.single('UserProfileImage'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
 
 // Assuming you have a route for handling login, e.g., '/login'
 app.post('/login', async (req, res) => {
@@ -901,3 +896,11 @@ app.post('/SaveToMongo', async (req, res) => {
   }
 });
 
+cron.schedule('*/12 * * * *', async () => {
+  try {
+      const response = await axios.get('https://mqttdryer.onrender.com/');
+      // console.log('Ping sent:', response.status);
+  } catch (error) {
+      console.error('Error sending ping:', error.message);
+  }
+});
