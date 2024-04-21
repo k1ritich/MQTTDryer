@@ -1,4 +1,5 @@
 <!-- NAVBAR -->
+<% if (activeTab === 'dashboard' && !timerInfo) { %>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script>
     const socket = io();
@@ -9,6 +10,7 @@
         }
     });
 </script>
+<% }%>
 <nav>
     <i class='bx bx-menu' ></i>
     <div class="form-text" id="espState">
