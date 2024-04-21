@@ -190,6 +190,21 @@ Promise.all(subscribePromises)
         const sensorData = new SensorDataModel(mappedData);
         await sensorData.save();
 
+        const PowerStates = {
+          HumidifierState: "OFF",
+          PowerState: "OFF",
+          OperationState: "OFF",
+        };
+
+        for (i=0; i < 10; i++) {
+          mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+            if (err) {
+              console.error('Error publishing message:', err);
+            } else {
+              // console.log('Message published successfully');
+            }
+          });
+        }
         mqttClient.publish('MYMQTTDRYER/PlayingTime',"NOTIMER", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
@@ -197,7 +212,13 @@ Promise.all(subscribePromises)
             // console.log('Message published successfully');
           }
         });
-
+        mqttClient.publish('MYMQTTDRYER/DryingData',"", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            // console.log('Message published successfully');
+          }
+        });
         mqttClient.publish('MYMQTTDRYER/FinishData',"", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
@@ -205,7 +226,21 @@ Promise.all(subscribePromises)
             // console.log('Message published successfully');
           }
         });
-        mqttClient.publish('MYMQTTDRYER/DryingData',"", { qos: 2, retain: true }, (err) => {
+        mqttClient.publish('MYMQTTDRYER/TemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            // console.log('Message published successfully');
+          }
+        });
+        mqttClient.publish('MYMQTTDRYER/RecordTemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            // console.log('Message published successfully');
+          }
+        });
+        mqttClient.publish('MYMQTTDRYER/RecordPowerTopic',"", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
           } else {
@@ -221,11 +256,6 @@ Promise.all(subscribePromises)
           await updateStartDrying.save();
           // console.log("Successfully Updated The Drying")
         }
-        const PowerStates = {
-          HumidifierState: "OFF",
-          PowerState: "OFF",
-          OperationState: "OFF",
-        };
         for (i=0; i < 10; i++) {
           mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
             if (err) {
