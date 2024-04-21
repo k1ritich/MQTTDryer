@@ -96,9 +96,7 @@ mqttClient.on('connect', () => {
   const topic = [
       "MYMQTTDRYER/TimerRequest",
       "MYMQTTDRYER/FinishData",
-      "MYMQTT/InitialACPowerTopic",
-      "MYMQTT/CurrentACPowerTopic",
-      'MYMQTT/DehumidifierSourceTopic'
+      'MYMQTTDRYER/ESPState'
   ];
 
 const subscribePromises = topic.map(currentTopic => {
@@ -192,7 +190,7 @@ Promise.all(subscribePromises)
         const sensorData = new SensorDataModel(mappedData);
         await sensorData.save();
 
-        mqttClient.publish('MYMQTTDRYER/Playing',"NOTIMER", { qos: 2, retain: true }, (err) => {
+        mqttClient.publish('MYMQTTDRYER/PlayingTime',"NOTIMER", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
           } else {
@@ -255,7 +253,7 @@ Promise.all(subscribePromises)
 
           
       // Unsubscribe from the topics
-      const topics1 = ['MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
+      const topics1 = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
       topics1.forEach((topic) => {
         mqttClient.unsubscribe(topic, (err) => {
           if (err) {
@@ -267,7 +265,7 @@ Promise.all(subscribePromises)
       });
 
     // Unsubscribe from the topics
-    const topics = ['MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
+    const topics = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
     topics.forEach((topic) => {
       mqttClient.subscribe(topic, (err) => {
         if (err) {
@@ -479,7 +477,7 @@ app.post('/StartDrying', async (req, res) => {
             }, 1000);
           }
         });
-        mqttClient.publish('MYMQTTDRYER/Playing',"TIMER", { qos: 2, retain: true }, (err) => {
+        mqttClient.publish('MYMQTTDRYER/PlayingTime',"TIMER", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
           } else {
@@ -546,7 +544,7 @@ app.post('/FinishDrying', async (req, res) => {
         }
       });
     }
-    mqttClient.publish('MYMQTTDRYER/Playing',"NOTIMER", { qos: 2, retain: true }, (err) => {
+    mqttClient.publish('MYMQTTDRYER/PlayingTime',"NOTIMER", { qos: 2, retain: true }, (err) => {
       if (err) {
         console.error('Error publishing message:', err);
       } else {
