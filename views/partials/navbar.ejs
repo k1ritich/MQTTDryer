@@ -1,15 +1,26 @@
 <!-- NAVBAR -->
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    socket.on('mqttMessage', (payload) => {
+        if (payload.topic === "MYMQTTDRYER/ESPState") {
+            const espState = payload.message;
+            document.getElementById('espState').innerText = `ESP: ${espState}`;
+        }
+    });
+</script>
 <nav>
     <i class='bx bx-menu' ></i>
-    <a href="/Dashboard" class="nav-link">Home</a>
+    <div class="form-text" id="espState">
+        ESP: Loading...
+    </div>
     <form action="#">
     </form>
     <input type="checkbox" id="switch-mode" hidden>
     <!-- <label for="switch-mode" class="switch-mode"></label> Dark Mode -->
     <!-- Button trigger modal -->
-<a href="#" class="profile" data-bs-toggle="modal" data-bs-target="#UpdateUser<%= UserDetail._id %>">
-    <img src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
-</a>
-
+    <a href="#" class="profile" data-bs-toggle="modal" data-bs-target="#UpdateUser<%= UserDetail._id %>">
+        <img src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
+    </a>
 </nav>
 <!-- NAVBAR -->
