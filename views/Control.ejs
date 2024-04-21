@@ -80,7 +80,7 @@
 
 	function ToggleDehumidifier(source) {
 		console.log('<%= UserDetail.FullName %>');
-		const DryingID = 'Control Panel'+'<%= UserDetail.FullName %>';
+		const DryingID = 'Control Panel '+'<%= UserDetail.FullName %>';
 
 		const modeValue = document.getElementById('mode').value;
 		const topic = 'MYMQTTDRYER/SwitchDehumidifierTopic';
@@ -97,7 +97,7 @@
 	
 	function switchSource(source) {
 		console.log('<%= UserDetail.FullName %>');
-		const DryingID = 'Control Panel'+'<%= UserDetail.FullName %>';
+		const DryingID = 'Control Panel '+'<%= UserDetail.FullName %>';
 
 		const modeValue = document.getElementById('mode').value;
 		const topic = 'MYMQTTDRYER/SwitchPowerTopic';
@@ -113,7 +113,7 @@
 	};
 	function switchSourceMode() {
 		// Ensure DryingID is properly assigned before calling this function
-		const DryingID ='Control Panel'+'<%= UserDetail.FullName %>';
+		const DryingID ='Control Panel '+'<%= UserDetail.FullName %>';
 
 		const modeValue = document.getElementById('mode').value;
 		document.getElementById('acbutton').disabled = (modeValue === "AUTOMATIC");
@@ -206,7 +206,7 @@
 			<label for="HumidityDisconnect">Humidity Disconnect</label>
 		</div>
 	</div>
-	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Peltier Control</button>
+	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Submit Humidity Control</button>
 </div>
 
 <div class="">

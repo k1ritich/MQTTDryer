@@ -21,19 +21,19 @@
 					// console.log(`Index ${i}: ${messageObj.Humidity[i]}`);
 				}
 			} else if (payload.topic === 'MYMQTTDRYER/StoreStateTopic') {
-				console.log("Received from MYMQTTDRYER/StoreStateTopic");
+				// console.log("Received from MYMQTTDRYER/StoreStateTopic");
 				const messageObj = JSON.parse(payload.message);
-				console.log(`Power State: ${messageObj.PowerState}`);
+				// console.log(`Power State: ${messageObj.PowerState}`);
 				activeSource = messageObj.PowerState;
 				DHactiveSource  = messageObj.HumidifierState;
 				if (messageObj.PowerState === 'BATTERY') {
-					console.log("BATTERY0")
+					// console.log("BATTERY0")
 					document.getElementById("ACPower").value = "OFF";
 					document.getElementById("BattPower").value = messageObj.PowerState;
 					activeSource = messageObj.PowerState;
 					handleSourceMessage(messageObj.PowerState)
 				} else if (messageObj.PowerState === 'AC') {
-					console.log("AC")
+					// console.log("AC")
 					document.getElementById("BattPower").value = "OFF";
 					document.getElementById("ACPower").value = messageObj.PowerState;
 					activeSource = messageObj.PowerState;
@@ -45,11 +45,11 @@
 					handleSourceMessage(messageObj.PowerState)
 				}
 				if (messageObj.HumidifierState === 'ON') {
-					console.log("BATTERY1")
+					// console.log("BATTERY1")
 					DHactiveSource = messageObj.HumidifierState;
 					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
 				} else if (messageObj.HumidifierState === 'OFF') {
-					console.log("AC")
+					// console.log("AC")
 					DHactiveSource = messageObj.HumidifierState;
 					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
 				}
@@ -59,7 +59,7 @@
 					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
 					handleModeMessage(messageObj.OperationState)
 				} else if (messageObj.OperationState === 'MANUAL') {
-					console.log("AC")
+					// console.log("AC")
 					document.getElementById("mode").value = "MANUAL";
 					handleModeMessage(messageObj.OperationState);
 				} else if (messageObj.OperationState === 'OFF') {
@@ -78,7 +78,7 @@
 		})
 
 		function ToggleDehumidifier(source) {
-			console.log('<%= timerInfo.id %>');
+			// console.log('<%= timerInfo.id %>');
 			const DryingID = '<%= timerInfo.id %>';
 
 			const modeValue = document.getElementById('mode').value;
@@ -95,7 +95,7 @@
 		};
 		
 		function switchSource(source) {
-			console.log('<%= timerInfo.id %>');
+			// console.log('<%= timerInfo.id %>');
 			const DryingID = '<%= timerInfo.id %>';
 
 			const modeValue = document.getElementById('mode').value;
@@ -128,8 +128,6 @@
 				DryingID: DryingID
 			});
 		}
-
-
 		function saveToMongo(data) {
 			// Assuming you have a route on the server for saving data to MongoDB, replace '/SaveToMongo' with the correct route
 			const saveToMongoRoute = '/SaveToMongo';
@@ -146,9 +144,6 @@
 				.then(message => console.log(message))
 				.catch(error => console.error('Error saving data to MongoDB:', error));
 		}
-
-
-
 		function handleSourceMessage(source) {
 			var acButton = document.getElementById('acbutton');
 			var batteryButton = document.getElementById('batterybutton');
@@ -230,7 +225,7 @@
 			<label for="HumidityDisconnect">Humidity Disconnect</label>
 		</div>
 	</div>
-	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Humidity Control</button>
+	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Submit Humidity Control</button>
 </div>
 
 <div class="">
@@ -277,6 +272,18 @@
 	</div>
 </div>
 <% } else { %>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		<strong>Error!</strong> <%= error %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+<% } else if ((typeof error !== 'undefined' && success)) { %>
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		<strong>Successfully!</strong> <%= success %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
 <% } %>
 
 <form id="finishDryingForm" action="/FinishDrying" method="POST">
