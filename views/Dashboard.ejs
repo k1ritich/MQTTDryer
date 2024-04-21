@@ -599,7 +599,7 @@
     var minutes = parseInt(document.getElementById('minutes').value);
 	console.log(days,hours,minutes)
 
-    if (isNaN(days) || isNaN(hours) || isNaN(minutes) || days <= 0 || hours <= 0 || minutes <= 0) {
+    if (isNaN(days) || isNaN(hours) || isNaN(minutes) || (days <= 0 && hours <= 0 && minutes <= 0)) {
         // If any of the values are invalid, show an alert
         document.getElementById('alertMessage').innerText = "Please enter a number greater than '0' for days, hours, and minutes.";
         document.getElementById('alert').style.display = 'block';
