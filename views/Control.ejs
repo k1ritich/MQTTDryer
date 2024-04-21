@@ -75,6 +75,9 @@
 				const messageObj = JSON.parse(payload.message);
 				document.getElementById('HumidityReconnect').value = messageObj.HumidityReconnect;
 				document.getElementById('HumidityDisconnect').value = messageObj.HumidityDisconnect;
+			} else if (payload.topic === "MYMQTTDRYER/ESPState") {
+				const espState = payload.message;
+				document.getElementById('espState').innerText = `Controller: ${espState}`;
 			}
 		})
 
