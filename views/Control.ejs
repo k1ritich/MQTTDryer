@@ -196,6 +196,18 @@
 	}
 </script>
 
+<% if (typeof error !== 'undefined' && error) { %>
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		<strong>Error!</strong> <%= error %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+<% } else if ((typeof error !== 'undefined' && success)) { %>
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<strong>Drying Stoped!</strong> <%= success %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+<% } %>
+
 <div class="row g-2">
 	<div class="col-md">
 		<div class="form-floating">
