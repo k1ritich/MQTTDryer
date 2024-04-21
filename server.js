@@ -386,7 +386,7 @@ tabs.forEach(tab => {
           res.redirect('/');
         } else if (tab.name === "History") {
           const onGoingTimers = await StartDryingModel.findOne({ Status: "On-going" });
-          const MyHistory = await SensorDataModel.find().sort({ createdAt: -1 });
+          const MyHistory = await SensorDataModel.find().sort({ stopTime: -1 });
           renderTab(tab, res, null, null, MyHistory, onGoingTimers, req.session.user, error, success);
         } else {
           renderTab(tab, res, null, null, null, null, req.session.user, error, success);
