@@ -297,7 +297,7 @@
 				<% if (timerInfo) { %>
 					<p>Item</p>
 					<div class="overflow-y-hidden"><%= timerInfo.ItemName %></div>
-					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b">
+					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b" hidden>
 					<input type="text" value="<%= timerInfo.ItemName %>" style="overflow: hidden;margin-top: 20px;"name="ItemName" id="name" class="input-b" hidden>
 				<% } else { %>
 					<!-- Handle the case where timerInfo is null -->
@@ -312,7 +312,7 @@
 			<% if (timerInfo) { %>
 				<p>Quantity</p>
 				<div class="overflow-y-hidden"><%= timerInfo.ItemQuantity %></div>
-				<input type="datetime" value="<%= timerInfo.ItemQuantity %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+				<input type="text" value="<%= timerInfo.ItemQuantity %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
 			<% } else { %>
 				<!-- Handle the case where timerInfo is null -->
 				<p>Quantity</p>
@@ -325,7 +325,7 @@
 			<span class="text">
 				<% if (timerInfo) { %>
 					<p>Start Time</p>
-					<div class="overflow-y-hidden"><%= timerInfo.startTime %></div>
+					<div class="overflow-y-hidden"><%= new Date(timerInfo.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></div>
 					<input type="datetime" value="<%= timerInfo.startTime %>" style="overflow-x: auto; margin-top: 20px;" name="startTime" id="name" class="input-b" hidden>
 				<% } else { %>
 					<!-- Handle the case where timerInfo is null -->
@@ -339,7 +339,7 @@
 			<span class="text">
 			<% if (timerInfo) { %>
 				<p>End Time</p>
-				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
+				<div class="overflow-y-hidden"><%= new Date(timerInfo.endTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></div>
 				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
 				<input type="text" value="<%= timerInfo.TimeMode %>" style="overflow-wrap: auto; margin-top: 20px;" name="TimeMode" id="name" class="input-b" hidden>
 			<% } else { %>
@@ -394,14 +394,6 @@
 				<label for="ACPower" class="formbold-form-label">AC Power Source</label>
 				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input form-control" readonly>
 			</div>
-
-			<!-- <div class="formbold-input-group">
-				<label for="ACPowerUsage" class="formbold-form-label">Power Usage Over Time (Initial/Current)</label>
-			</div>
-			<div class="input-group">
-				<input value="N/A" type="text" aria-label="First name" id="InitialACPowerUsage" class="input form-control text-center" readonly>
-				<input value="N/A" type="text" aria-label="First name" id="CurrentACPowerUsage" style="border: 0px;" class="input form-control text-center" readonly>
-			</div> -->
 		</div>
 	</div>
 
