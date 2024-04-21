@@ -40,6 +40,7 @@
 					<td class="text-center">
 						<p2><%= onGoingTimers.UserName %></p2>
 					</td>
+					<td class="text-center">Not Yet Done</td>
 					<td class="text-center"><%= onGoingTimers.DryingTitle %></td>
 					<td class="text-center"><span><%= onGoingTimers.ItemQuantity %></span></td>
 					<td class="text-center"><span><%= new Date(onGoingTimers.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) %></span></td>
@@ -77,7 +78,7 @@
 						<td class="text-center"><%= history.DryingTitle %></td>
 						<td class="text-center"><span><%= history.ItemQuantity %></span></td>
 						<td class="text-center"><span><%= new Date(history.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></span></td>
-						<td class="text-center"><span><%= new Date(history.endTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></span></td>
+						<td class="text-center"><span><%= new Date(history.stopTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></span></td>
 						<td class="text-center"><span id="Duration<%= index %>"></span></td>
 						<% if (history.Status === 'Complete') { %>
 						<td class="text-center"><span class="status completed">Complete</span></td>
@@ -149,7 +150,7 @@
         // Loop through each history record and calculate the duration
         <% MyHistory.forEach((history, index) => { %>
             const startTime<%= index %> = '<%= history.startTime %>';
-            const endTime<%= index %> = '<%= history.endTime %>';
+            const endTime<%= index %> = '<%= history.stopTime %>';
             const duration<%= index %> = Duration(startTime<%= index %>, endTime<%= index %>);
             $('#Duration<%= index %>').text(duration<%= index %>);
         <% }); %>
