@@ -61,7 +61,7 @@ mongoose.connect(process.env.DATABASE_URL)
 
 // Start HTTP server
 httpServer.listen(port, () => {
-  console.log(`Server listening at http://${WebURL}:${port}.`);
+  // console.log(`Server listening at http://${WebURL}:${port}.`);
 })
   .on('error', (err) => {
       console.error(`Error starting HTTP server: ${err.message}`);
@@ -191,6 +191,15 @@ Promise.all(subscribePromises)
         };
         const sensorData = new SensorDataModel(mappedData);
         await sensorData.save();
+
+        mqttClient.publish('MYMQTTDRYER/Playing',"NOTIMER", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            // console.log('Message published successfully');
+          }
+        });
+
         mqttClient.publish('MYMQTTDRYER/FinishData',"", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
@@ -219,13 +228,15 @@ Promise.all(subscribePromises)
           PowerState: "OFF",
           OperationState: "OFF",
         };
-        mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
-          if (err) {
-            console.error('Error publishing message:', err);
-          } else {
-            // console.log('Message published successfully');
-          }
-        });
+        for (i=0; i < 10; i++) {
+          mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+            if (err) {
+              console.error('Error publishing message:', err);
+            } else {
+              // console.log('Message published successfully');
+            }
+          });
+        }
       } catch (error) {
         console.error('Error parsing JSON or saving to MongoDB:', error);
       }
@@ -276,8 +287,6 @@ Promise.all(subscribePromises)
       mqttClient.publish(payload.topic, payload.message, { retain: true });
     });    
   });
-  
-
 // Set up Multer for handling file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -290,7 +299,6 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
-
 app.get('/downloadSensorDataPDF', async (req, res) => {
   try {
     // Get the ID parameter from the request
@@ -331,7 +339,6 @@ app.get('/downloadSensorDataPDF', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
@@ -341,7 +348,6 @@ app.get('/', (req, res) => {
     res.render(__dirname + '/views/Login', { title: 'Login', error: error});
   }
 });
-
 function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, onGoingTimers= null, UserDetail, error = null, success = null) {
   res.render(`${__dirname}/views/index`, {
     title: tab.name,
@@ -397,7 +403,6 @@ tabs.forEach(tab => {
     }
   });
 });
-
 app.post('/StartDrying', async (req, res) => {
   try {
     const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
@@ -474,6 +479,14 @@ app.post('/StartDrying', async (req, res) => {
             }, 1000);
           }
         });
+        mqttClient.publish('MYMQTTDRYER/Playing',"TIMER", { qos: 2, retain: true }, (err) => {
+          if (err) {
+            console.error('Error publishing message:', err);
+          } else {
+            // console.log('Message published successfully');
+          }
+        });
+
         res.redirect('/Dashboard');
     }
   } catch (error) {
@@ -524,7 +537,16 @@ app.post('/FinishDrying', async (req, res) => {
       PowerState: "OFF",
       OperationState: "OFF",
     };
-    mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+    for (i=0; i < 10; i++) {
+      mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+        if (err) {
+          console.error('Error publishing message:', err);
+        } else {
+          // console.log('Message published successfully');
+        }
+      });
+    }
+    mqttClient.publish('MYMQTTDRYER/Playing',"NOTIMER", { qos: 2, retain: true }, (err) => {
       if (err) {
         console.error('Error publishing message:', err);
       } else {
