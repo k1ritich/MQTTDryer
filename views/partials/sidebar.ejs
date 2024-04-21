@@ -9,7 +9,7 @@
                 </div>
                 <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Profile</h1>
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Profile</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
         
@@ -44,7 +44,7 @@
                     </form>
                 </div>
             </div>
-          </div>
+        </div>
 
     <!-- StartDrying Modal -->
     <div class=" modal fade" id="startDrying" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -149,6 +149,50 @@
       </div>
 
     <% } else if (activeTab === 'profile') { %>
+        <div class="modal fade" id="UpdateUser<%= UserDetail._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Leave Old/New password blank!</strong> If you wish not to change password.
+                </div>
+                <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+        
+                    <form id="UpdateUserForm" action="/UpdateUser/<%= UserDetail._id %>" method="POST" enctype="multipart/form-data">
+                        <!-- Modal Body Start -->
+                        <div class="modal-body">
+
+                            <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                            <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+        
+                            <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                            <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= UserDetail.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                            
+                            <strong><label for="OldSecurityKey" class="form-label mt-3">Old password</label></strong>
+                            <input type="password" name="OldSecurityKey" id="OldSecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="SecurityKey" class="form-label mt-3">New password</label></strong>
+                            <input type="password" name="SecurityKey" id="SecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                            <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+        
+                            <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+                        </div>
+
+                        <!-- Modal Body End -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" >Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     <div class=" modal fade" id="AddUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
@@ -298,6 +342,94 @@
             </div>
           </div>
       <% }); %>
+    <% } else if (activeTab === 'history') { %>
+        <div class="modal fade" id="UpdateUser<%= UserDetail._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Leave Old/New password blank!</strong> If you wish not to change password.
+                </div>
+                <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+        
+                    <form id="UpdateUserForm" action="/UpdateUser/<%= UserDetail._id %>" method="POST" enctype="multipart/form-data">
+                        <!-- Modal Body Start -->
+                        <div class="modal-body">
+
+                            <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                            <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+        
+                            <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                            <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= UserDetail.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                            
+                            <strong><label for="OldSecurityKey" class="form-label mt-3">Old password</label></strong>
+                            <input type="password" name="OldSecurityKey" id="OldSecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="SecurityKey" class="form-label mt-3">New password</label></strong>
+                            <input type="password" name="SecurityKey" id="SecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                            <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+        
+                            <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+                        </div>
+
+                        <!-- Modal Body End -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" >Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <% } else if (activeTab === 'control-panel') { %>
+        <div class="modal fade" id="UpdateUser<%= UserDetail._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Leave Old/New password blank!</strong> If you wish not to change password.
+                </div>
+                <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Update Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+        
+                    <form id="UpdateUserForm" action="/UpdateUser/<%= UserDetail._id %>" method="POST" enctype="multipart/form-data">
+                        <!-- Modal Body Start -->
+                        <div class="modal-body">
+
+                            <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                            <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+        
+                            <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                            <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= UserDetail.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                            
+                            <strong><label for="OldSecurityKey" class="form-label mt-3">Old password</label></strong>
+                            <input type="password" name="OldSecurityKey" id="OldSecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="SecurityKey" class="form-label mt-3">New password</label></strong>
+                            <input type="password" name="SecurityKey" id="SecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                            <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+        
+                            <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+                        </div>
+
+                        <!-- Modal Body End -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" >Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     <% } %>
     
     <a href="#" class="brand">
@@ -312,7 +444,7 @@
         <% const menuItems = [
             { path: '/Dashboard', icon: 'bx bxs-dashboard', text: 'Dashboard', key: 'dashboard' },
             { path: '/Control-Panel', icon: 'bx bxs-doughnut-chart', text: 'Control Panel', key: 'control-panel' },
-            { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' }
+            { path: '/History', icon: 'bx bxs-calendar-event', text: 'History', key: 'history' },
         ];
     
         if (UserDetail.Role === 'Admin') {

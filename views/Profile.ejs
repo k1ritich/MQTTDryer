@@ -22,6 +22,7 @@
 					<th class="text-center">ID Number#</th>
 					<th class="text-center">Phone Number#</th>
 					<th class="text-center">Role</th>
+					<th class="text-center">Created By</th>
 					<th class="text-center">Action</th>
 				</tr>
 			</thead>
@@ -38,6 +39,7 @@
 						<td class="text-center"><%= profile.UnivStudID %></td>
 						<td class="text-center"><span><%= profile.PhoneNumber %></span></td>
 						<td class="text-center"><span><%= profile.Role %></span></td>
+						<td class="text-center"><span><%= profile.CreatedBy %></span></td>
 						<td class="text-center">
 							<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#EditProfile<%= profile._id %>">Edit</button>
 							<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#Delete<%= profile._id %>">Delete</button>
