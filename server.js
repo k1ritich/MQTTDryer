@@ -586,7 +586,8 @@ app.post('/FinishDrying', async (req, res) => {
         // console.log('Message published successfully');
       }
     });
-    res.redirect('/Dashboard');
+    req.session.success = "Set 'Mode' to turn Off After Drying";
+    res.redirect('/Control-Panel');
   } else {
     // console.log("Active timer not found.");
   }
