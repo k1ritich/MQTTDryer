@@ -65,103 +65,6 @@ const RelayState = new Schema ({
     }
 }, { timestamps: false });
 
-const DryingDetailSchema = new Schema({
-    // User Data
-    DryingID: {
-        type: String,
-        required: false
-    },
-    ItemName: {
-        type: String,
-        required: false
-    },
-    ItemQuantity: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    startTime: {
-        type: Date,
-        required: false
-    },
-    endTime: {
-        type: Date,
-        required: false
-    },
-
-    // Environment Data
-    Humidity: {
-        type: Number, // Assuming humidity is a number, adjust if necessary
-        required: false
-    },
-
-    Temperature: {
-        type: Number, // Assuming temperature is a number, adjust if necessary
-        required: false
-    },
-
-    LightIntensity: {
-        type: Number, // Assuming light is a number, adjust if necessary
-        required: false
-    },
-
-    // Battery Power Information
-    BattPower: {
-        type: String, //
-        required: false
-    },
-    BattPowerUsage: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    BattPowerVoltage: {
-        type: Number, // 
-        required: false
-    },
-    BattPowerCurrent: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    // Add battery-related properties here
-
-    // Battery Power Information
-    ACPower: {
-        type: String, // 
-        required: false 
-    },
-    ACPowerUsage: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    ACPowerVoltage: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    ACPowerCurrent: {
-        type: String, // it should be "Number"
-        required: false
-    },
-    // Add battery-related properties here
-}, { timestamps: false });
-
-const UserDetailSchema = new Schema({
-    // User Data
-    User: {
-        type: String,
-        required: false
-    },
-    Item: {
-        type: String,
-        required: false
-    },
-    StartTime: {
-        type: String,
-        required: false
-    },
-    EndTime: {
-        type: String // Add other properties as needed
-    },
-}, { timestamps: false });
-
 const SensorDataSchema = new Schema({
     // User Data
     UserName: {
@@ -226,25 +129,6 @@ const SensorDataSchema = new Schema({
     },
 }, { timestamps: false });
 
-const ESPDetails = new Schema({
-    ItemName: {
-        type: String,
-        required: false
-    },
-    ItemQuantity: {
-        type: Number,
-        required: false
-    },
-    startTime: {
-        type: Date,
-        required: false
-    },
-    endTime: {
-        type: Date,
-        required: false
-    }
-});
-
 const CreateProfile = new mongoose.Schema({
     CreatedBy: {
         type: String,
@@ -303,14 +187,9 @@ const CreateProfile = new mongoose.Schema({
 // Export both schemas as properties of an object
 
 const Models = {
-    DryingDetails: mongoose.model('DryingDetails', DryingDetailSchema),
-    UserDetails: mongoose.model('UserDetails', UserDetailSchema),
     TimerDetails: mongoose.model('TimerDetails', TimerSchema), // Renamed to be consistent
     RelayStates: mongoose.model('RelayStates', RelayState), // Renamed to be consistent
     CreateProfiles: mongoose.model('Profiles', CreateProfile),
-    
-
     SensorData: mongoose.model('SensorDatas', SensorDataSchema),
-    ESPDetails: mongoose.model('ESPDetails', ESPDetails), // Renamed to be consistent
   };
 module.exports = Models;

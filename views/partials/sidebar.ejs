@@ -1,6 +1,54 @@
 <!-- sidebar.ejs -->
 <section id="sidebar" class="hide"  style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <% if (activeTab === 'dashboard') { %>
+        
+        <div class="modal fade" id="UpdateUser<%= UserDetail._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Leave Old/New password blank!</strong> If you wish not to change password.
+                </div>
+                <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Profile</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+        
+                    <form id="UpdateUserForm" action="/UpdateUser/<%= UserDetail._id %>" method="POST" enctype="multipart/form-data">
+                        <!-- Modal Body Start -->
+                        <div class="modal-body">
+
+                            <strong><label for="FullName" class="form-label">Full Name</label></strong>
+                            <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+        
+                            <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
+                            <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= UserDetail.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                            
+                            <strong><label for="OldSecurityKey" class="form-label mt-3">Old password</label></strong>
+                            <input type="password" name="OldSecurityKey" id="OldSecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="SecurityKey" class="form-label mt-3">New password</label></strong>
+                            <input type="password" name="SecurityKey" id="SecurityKey" class="form-control" aria-describedby="passwordHelpBlock" value="" placeholder="">
+
+                            <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
+                            <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+        
+                            <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
+                            <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= UserDetail.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+                        </div>
+
+                        <!-- Modal Body End -->
+                        <div class="modal-footer">
+                            <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
+                                <span id="alertMessage"></span>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" >Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+
     <div class=" modal fade" id="startDrying" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="container modal-content" style="border-left: #800000 10px solid; border-right: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
@@ -78,7 +126,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
@@ -86,8 +133,7 @@
                     <h1 class="modal-title fs-5" id="staticBackdropLabel">Drying</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-    
-                <form id="DeleteUserForm" action="" method="POST">
+                <form id="" action="/FinishDrying" method="POST">
                     <!-- Modal Body Start -->
                     <div class="modal-body">
                       <p>Are you sure you want to stop drying? 
@@ -169,7 +215,7 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
       
-                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST">
+                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST" enctype="multipart/form-data>
                       <!-- Modal Body Start -->
                       <div class="modal-body">
                           <strong><label for="FullName" class="form-label">Full Name</label></strong>
@@ -201,7 +247,7 @@
                               <span id="alertMessage"></span>
                           </div>
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-maroon">Submit</button>
+                          <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon" >Submit</button>
                       </div>
                   </form>
               </div>
@@ -249,7 +295,7 @@
                                 <span id="alertMessage"></span>
                             </div>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-maroon">Submit</button>
+                            <button type="submit" style="background-color: #800000; color: white;" class="btn btn-maroon">Submit</button>
                         </div>
                     </form>
                 </div>

@@ -31,13 +31,10 @@ app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   next();
 });
-
-const DryingDetailsModel = Models.DryingDetails; // Partially Done
 const StartDryingModel = Models.TimerDetails; // Done
 const SensorDataModel = Models.SensorData;
 const RelayStatesModel = Models.RelayStates;
 const CreateProfilesModel = Models.CreateProfiles;
-const ESPDetails = Models.ESPDetails;
 
 const mqttOptions = {
   host: process.env.MQTT_HOST,
@@ -175,12 +172,10 @@ Promise.all(subscribePromises)
     } else if (payload.topic === 'MYMQTTDRYER/FinishData') {
       try {
         const jsonData = JSON.parse(payload.message);
-        // console.log('Received JSON data:', jsonData);
-        // Map JSON keys to match SensorDataSchema
           const mappedData = {
           UserName: jsonData.UserName,
           UserID: jsonData.UserID,
-          Drying_id: jsonData._id, // Assuming _id in JSON corresponds to Drying_id
+          Drying_id: jsonData._id,
           UserProfPic: jsonData.UserProfPic,
           DryingTitle: jsonData.DryingTitle,
           ItemName: jsonData.ItemName,
@@ -294,7 +289,6 @@ const storage = multer.diskStorage({
     cb(null,file.fieldname + '-' + req.body.UnivStudID + '-' + uniqueSuffix + extension);
   },
 });
-
 const upload = multer({ storage: storage });
 
 app.get('/downloadSensorDataPDF', async (req, res) => {
@@ -342,23 +336,11 @@ app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
   } else {
-    // Clear session variables
     const error = req.session.error;
     req.session.error = null;
-
     res.render(__dirname + '/views/Login', { title: 'Login', error: error});
   }
 });
-
-app.get('/template', (req, res) => {
-    // Clear session variables
-    const error = req.session.error;
-    req.session.error = null;
-
-    res.render(__dirname + '/views/pdfTemplate', {dirname: __dirname});
-});
-
-
 
 function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, onGoingTimers= null, UserDetail, error = null, success = null) {
   res.render(`${__dirname}/views/index`, {
@@ -376,8 +358,6 @@ function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = nul
     success: success,
   });
 }
-
-
 tabs.forEach(tab => {
   app.get(`/${tab.name}`, async (req, res) => {
     try {
@@ -394,14 +374,15 @@ tabs.forEach(tab => {
             ? { ItemQuantity:firstActiveTimer.ItemQuantity, ItemName: firstActiveTimer.ItemName, id: firstActiveTimer._id, startTime: firstActiveTimer.startTime, endTime: firstActiveTimer.endTime, TimeMode: firstActiveTimer.TimeMode }
             : null;
           renderTab(tab, res, timerInfo, null, null, null, req.session.user, error, success);
-        } else if (tab.name === "Profile") {
+        } else if (tab.name === "Profile" && req.session.user.Role === "Admin") {
           const Myprofile = await CreateProfilesModel.find().sort({ createdAt: -1 });
-          // console.log('Fetched Profiles:', Myprofile);
           renderTab(tab, res, null, Myprofile, null, null, req.session.user, error, success);
+        } else if (tab.name === "Profile" && req.session.user.Role === "User") {
+          req.session.error = "Profile Tab is for 'Admin Only'";
+          res.redirect('/');
         } else if (tab.name === "History") {
           const onGoingTimers = await StartDryingModel.findOne({ Status: "On-going" });
           const MyHistory = await SensorDataModel.find().sort({ createdAt: -1 });
-          // console.log('Fetched Profiles:', Myprofile);
           renderTab(tab, res, null, null, MyHistory, onGoingTimers, req.session.user, error, success);
         } else {
           renderTab(tab, res, null, null, null, null, req.session.user, error, success);
@@ -417,73 +398,33 @@ tabs.forEach(tab => {
   });
 });
 
-app.post('/DryingDetails', (req, res) => {
-    // console.log(req.body);
-    const dryingDetails = new DryingDetailsModel(req.body);
-    dryingDetails.save()
-        .then(() => {
-            res.redirect('/Dashboard');
-        })
-        .catch((err) => {
-            // console.log(err);
-        });
-});
-
 app.post('/StartDrying', async (req, res) => {
   try {
-    // const activeTimers = await StartDryingModel.find({ endTime: { $gt: new Date() } });
     const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
 
     activeTimers.forEach(timer => {
-      // console.log("Active Timer End Time: " + timer.endTime);
     });
-
-    // Check if there are active timers with end time greater than current time
     if (activeTimers.length > 0) {
       res.redirect('/Dashboard');
     } else {
-      // No active timer, proceed with starting a new timer
-      // console.log(req.body);
-      // mqttClient.publish('MYMQTTDRYER/DryingData', JSON.stringify(req.body));
       const itemName = req.body.ItemName;
       const ItemQuantity = req.body.ItemQuantity;
-      const modeSelect = req.body.modeSelect;
       const TimeMode = req.body.TimeMode;
-      const sourceSelect = req.body.powerSourceSelect;
       const Status = req.body.status;
       const DryingTitle = req.body.DryingTitle;
       const { days, hours, minutes } = req.body;
 
       const totalMilliseconds = ((parseInt(days) * 24 + parseInt(hours)) * 60 + parseInt(minutes)) * 60 * 1000;
-      const currentTimestamp = new Date().getTime(); // Get current timestamp in milliseconds
+      const currentTimestamp = new Date().getTime();
       const timestamp = new Date(currentTimestamp + totalMilliseconds);
 
-      // Calculate the duration based on the user input
       const userDate = new Date(timestamp);
       const currentTime = new Date();
 
-      // Convert user's datetime to milliseconds
       const userDateInMillis = userDate - currentTime;
       mqttClient.publish('MYMQTT/MillisTopic', userDateInMillis.toString());
 
-      // Introduce a delay of 1000 milliseconds (1 second) before the second publish
-      setTimeout(async () => {
-        if (modeSelect === "AUTOMATIC") {
-          mqttClient.publish('MYMQTT/SwitchSourceModeTopic', modeSelect);
-          mqttClient.publish('MYMQTT/SwitchSourceTopic', "SOLAR");
-        }
-        mqttClient.publish('MYMQTT/SwitchSourceModeTopic', modeSelect);
-        mqttClient.publish('MYMQTT/SwitchSourceTopic', sourceSelect);
-      }, 1000); // Adjust the delay as needed
-
-        // Continue with the rest of the code after the second publish
-        // console.log("userDate: " + userDate);
-        // console.log("currentTime: " + currentTime);
-        // console.log("UserMillis: " + userDateInMillis);
-
         if (TimeMode === "NOTIMER") {
-          // console.log("You Reach Me");
-          // Create a new StartDryingModel instance
           const timer = new StartDryingModel({
             UserName: req.session.user.FullName,
             UserID: req.session.user._id,
@@ -496,11 +437,9 @@ app.post('/StartDrying', async (req, res) => {
             startTime: currentTime,
             endTime: null,
           });
-          // Save the timer to the database
           await timer.save();
 
         } else if (TimeMode === "TIMER") {
-          // Create a new StartDryingModel instance
           const timer = new StartDryingModel({
             UserName: req.session.user.FullName,
             UserID: req.session.user._id,
@@ -513,12 +452,9 @@ app.post('/StartDrying', async (req, res) => {
             startTime: currentTime,
             endTime: userDate,
           });
-          // Save the timer to the database
           await timer.save();
         }
-
         const newTimerMQTT = await StartDryingModel.findOne({ Status: "On-going" }).exec();
-        
         const PowerStates = {
           HumidifierState: "ON",
           PowerState: req.body.powerSourceSelect,
@@ -528,43 +464,23 @@ app.post('/StartDrying', async (req, res) => {
           if (err) {
             console.error('Error publishing message:', err);
           } else {
-            // console.log('Message published successfully');
-            
-            // Add a 1-second delay before publishing the next message
             setTimeout(() => {
               mqttClient.publish('MYMQTTDRYER/StoreStateTopic', JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
                 if (err) {
                   console.error('Error publishing message:', err);
                 } else {
-                  // console.log('Message published successfully');
                 }
               });
-            }, 1000); // 1000 milliseconds = 1 second
+            }, 1000);
           }
         });
-        const newTimer = await StartDryingModel.find({ Status: "On-going" }).exec();
-        const NewActiveTimer = newTimer.length > 0 ? newTimer[0] : null;
-        // console.log(NewActiveTimer._id);
-        ID = NewActiveTimer._id
-
-        const state = new RelayStatesModel({
-          DehumidifierRelayState: 'ON',
-          DryingID: ID,
-          DryingMode: modeSelect,
-          RelayState: sourceSelect,
-        })
-        // Save the State to the database
-        await state.save();
-
         res.redirect('/Dashboard');
     }
   } catch (error) {
-    // Handle any errors that may occur during the process
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
 });
-
 app.post('/FinishDrying', async (req, res) => {
   // console.log(req.body);
   const Temperature = [];
@@ -655,94 +571,18 @@ app.post('/FinishDrying', async (req, res) => {
     // console.log("Active timer not found.");
   }
 });
-app.post('/SaveData', async (req, res) => {
-  try {
-    // console.log(req.body);
-    // Assuming datalog is a mongoose model, you can create an instance and save it
-    const datalog = new SensorDataModel(req.body); // Replace YourDataModel with your actual Mongoose model
-    await datalog.save();
-
-    res.redirect('/Dashboard');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-app.get('/StartGetData', async (req, res) => {
-  try {
-    // const activeTimers = await StartDryingModel.find({ endTime: { $gt: new Date() } });
-    const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
-    const firstActiveTimer = activeTimers.length > 0 ? activeTimers[0] : null;
-    // console.log(new Date().getTime());
-    
-    if (firstActiveTimer) {
-      res.json(firstActiveTimer);
-    } else {
-      res.json(null);
-    }
-  } catch (error) {
-    console.error('Error fetching data from MongoDB:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/getdata', async (req, res) => {
-  try {
-    // const activeTimers = await StartDryingModel.find({ endTime: { $gt: new Date() } });
-    const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
-    const firstActiveTimer = activeTimers.length > 0 ? activeTimers[0] : null;
-    // console.log(new Date().getTime());
-    
-    if (firstActiveTimer) {
-      const SensorState = await RelayStatesModel
-      .findOne({ DryingID: firstActiveTimer._id })
-      .sort({ _id: -1 }) // Assuming the documents have an "_id" field and you want to sort based on it in descending order
-      .limit(1);
-      const userDateInMillis = firstActiveTimer.endTime.getTime() - new Date().getTime();
-      res.json(firstActiveTimer);
-      mqttClient.publish('MYMQTT/MillisTopic', userDateInMillis.toString());
-
-      setTimeout(async () => {
-        if (SensorState.DryingMode === "AUTOMATIC") {
-          mqttClient.publish('MYMQTT/SwitchSourceModeTopic', SensorState.DryingMode);
-          mqttClient.publish('MYMQTT/SwitchSourceTopic', SensorState.RelayState);
-        }
-        mqttClient.publish('MYMQTT/SwitchSourceModeTopic', SensorState.DryingMode);
-        mqttClient.publish('MYMQTT/SwitchSourceTopic', SensorState.RelayState);
-      }, 1000);
-    } else {
-      res.json(null);
-    }
-  } catch (error) {
-    console.error('Error fetching data from MongoDB:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
 app.post('/AddUser', upload.single('UserProfileImage'), async (req, res) => {
   try {
-    // Log the request body
-    // console.log(req.body);
-
-    // Retrieve user input from the form
     const { FullName, UnivStudID, EmailAddress, PhoneNumber, Password, RoleSelect } = req.body;
-    // Get the file path of the uploaded image
     const imagePath = req.file ? req.file.path : null;
-
-    // Check for duplicate UnivStudID or EmailAddress
     const existingUser = await CreateProfilesModel.findOne({
       $or: [{ UnivStudID: UnivStudID }, { FullName: FullName}]
     });
-
     if (existingUser) {
-      // Handle duplicate user (you can send an error message or redirect to a different page)
       req.session.error = "Profile already exist! Check ID and Name";
-      res.redirect('/Profile'); // Redirect to an error page or handle it as needed
+      res.redirect('/Profile');
       return;
     } 
-
-    // Create a new profile instance
     const userProfile = new CreateProfilesModel({
       CreatedBy: req.session.user.FullName,
       CreatedByUserID: req.session.user._id,
@@ -754,50 +594,32 @@ app.post('/AddUser', upload.single('UserProfileImage'), async (req, res) => {
       Role: RoleSelect,
       ProfileImage: imagePath,
     });
-
-    // Save the profile to the database
     await userProfile.save();
-
-    req.session.success = "Added Profile!";
-    // Redirect or send a response as needed
+    req.session.success = "Added Profile";
     res.redirect('/Profile');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
-
-// Assuming you have a route for handling login, e.g., '/login'
 app.post('/login', async (req, res) => {
   try {
     const { StudUnivID, Password } = req.body;
-
-    // If the user is already logged in, redirect them to the dashboard
     if (req.session.user) {
       return res.redirect('/Dashboard');
     }
-
-    // Find the user by their student/university ID
     const user = await CreateProfilesModel.findOne({ UnivStudID: StudUnivID });
-
     if (user) {
-      // Compare the provided password with the double-hashed password in the database
       const isPasswordMatch = await bcrypt.compare(Password, user.SecurityKey);
-
       if (isPasswordMatch) {
         req.session.user = user;
-
-        // Set cache-control headers to prevent caching
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-
-        res.redirect('/Dashboard'); // Redirect to the dashboard or any authorized page
+        res.redirect('/Dashboard');
       } else {
-        // Passwords do not match, set an error message in session
         req.session.error = 'Invalid ID or Password';
         res.redirect('/?invalidcredentials');
       }
     } else {
-      // User not found, set an error message in session
       req.session.error = 'Invalid ID or Password';
       res.redirect('/?invalidcredentials');
     }
@@ -806,82 +628,103 @@ app.post('/login', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
 app.post('/logout', (req, res) => {
-  // Destroy the session to log the user out
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
     }
-    // Redirect to the login page after logout
     res.redirect('/');
   });
 });
-
 app.post('/EditUser/:id', async (req, res) => {
   try {
     const userId = req.params.id;
-    // console.log(userId);
     const { FullName, UnivStudID, EmailAddress, PhoneNumber, RoleSelect, UserProfileImage} = req.body;
-
-    // Find the user by ID
     const user = await CreateProfilesModel.findById(userId);
-
     if (!user) {
       return res.status(404).send('User not found');
     }
-
-    // Update user details
     user.FullName = FullName;
     user.UnivStudID = UnivStudID;
     user.EmailAddress = EmailAddress;
     user.PhoneNumber = PhoneNumber;
     user.Role = RoleSelect;
     if (req.file) {
-      user.ProfileImage = req.file.filename; // Assuming multer renames the file and assigns a unique filename
+      user.ProfileImage = req.file.filename;
     }
-
-    // Save the updated user details
     await user.save();
-
-    // Redirect or send a response as needed
-    res.redirect('/Profile'); // Redirect to the profile page or any other page
+    req.session.success = "Edited Profile"
+    res.redirect('/Profile');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
-
-// Update the route for deleting a user profile
+app.post('/UpdateUser/:id', upload.single('NewUserProfileImage'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { FullName, UnivStudID, OldSecurityKey, SecurityKey, EmailAddress, PhoneNumber} = req.body;
+    const user = await CreateProfilesModel.findById(userId);
+    if (user) {
+      if (OldSecurityKey && SecurityKey) {
+        const isPasswordMatch = await bcrypt.compare(OldSecurityKey, user.SecurityKey);
+        if (isPasswordMatch) {
+          user.FullName = FullName;
+          user.UnivStudID = UnivStudID;
+          user.EmailAddress = EmailAddress;
+          user.PhoneNumber = PhoneNumber;
+          user.SecurityKey = SecurityKey;
+          const imagePath = req.file ? req.file.path : null;
+          if (req.file) {
+            user.ProfileImage = imagePath;
+          }
+          await user.save();
+          req.session.success = "Updated Profile and password is changed (Relogin if you change your profile picture)"
+          res.redirect('/');
+        } else {
+          req.session.error = "Old Password is incorrect"
+          res.redirect('/');
+        }
+      } else if (!OldSecurityKey && !SecurityKey) {
+          user.FullName = FullName;
+          user.UnivStudID = UnivStudID;
+          user.EmailAddress = EmailAddress;
+          user.PhoneNumber = PhoneNumber;
+          const imagePath = req.file ? req.file.path : null;
+          if (req.file) {
+              user.ProfileImage = imagePath;
+          }
+          await user.save();
+          req.session.success = "Updated Profile (Relogin if you change your profile picture)"
+          res.redirect('/');
+      } else if (!OldSecurityKey !== !SecurityKey) {
+        req.session.error = "If you wish to change password provide the New/Old Password"
+        res.redirect('/');
+      }
+    } else if (!user) {
+      req.session.error = "Unable to find your profile"
+      res.redirect('/');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 app.post('/DeleteUser/:id', async (req, res) => {
   try {
     const userId = req.params.id;
-
-    // Find the user by ID
     const user = await CreateProfilesModel.findById(userId);
-
     if (!user) {
       return res.status(404).send('User not found');
     }
-
-    // Delete the associated image file if it exists
-    if (user.ProfileImage) {
-      fs.unlinkSync(user.ProfileImage);
-    }
-
-    // Delete the user
     await user.deleteOne();
-
-    // Redirect or send a response as needed
-    res.redirect('/Profile'); // Redirect to the profile page or any other page
+    req.session.error = "Deleted Profile";
+    res.redirect('/Profile');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
-
-// Add this route handling
 app.post('/SaveToMongo', async (req, res) => {
   try {
     // console.log(req.body);
@@ -895,7 +738,6 @@ app.post('/SaveToMongo', async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 });
-
 cron.schedule('*/12 * * * *', async () => {
   try {
       const response = await axios.get('https://mqttdryer.onrender.com/');
