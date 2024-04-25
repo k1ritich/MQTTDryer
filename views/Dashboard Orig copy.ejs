@@ -1,100 +1,118 @@
 
 <% if (timerInfo) { %>
-	<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-	<script>
-		let activeSource = '';
-		const socket = io();
-		// Socket.io event handler for 'mqttMessage'
-		socket.on('mqttMessage', (payload) => {
-		  // Update your HTML elements with the received MQTT message
-		//   console.log(payload);
-		  // Update values based on the received MQTT message
-			if (payload.topic === 'MYMQTT/TemperatureTopic') {
-				document.getElementById('Temperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic') {
-				document.getElementById('Humidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic0') {
-				document.getElementById('FLTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic0') {
-				document.getElementById('FLHumidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic1') {
-				document.getElementById('FRTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic1') {
-				document.getElementById('FRHumidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic2') {
-				document.getElementById('CLTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic2') {
-				document.getElementById('CLHumidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic3') {
-				document.getElementById('CRTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic3') {
-				document.getElementById('CRHumidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic4') {
-				document.getElementById('RLTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic4') {
-				document.getElementById('RLHumidity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/TemperatureTopic5') {
-				document.getElementById('RRTemperature').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/HumidityTopic5') {
-				document.getElementById('RRHumidity').value = payload.message;
-			}else if (payload.topic === 'MYMQTT/LightTopic') {
-				document.getElementById('LightIntensity').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/VoltageTopic') {
-				document.getElementById('BattPowerVoltage').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/SourceTopic') {
-				if (payload.message === 'BATTERY') {
-					document.getElementById("ACPower").value = "OFF";
-					document.getElementById("BattPower").value = payload.message;
-					activeSource = payload.message;
-					handleSourceMessage(payload.message)
-				} else if (payload.message === 'AC') {
-					document.getElementById("BattPower").value = "OFF";
-					document.getElementById("ACPower").value = payload.message;
-					activeSource = payload.message;
-				handleSourceMessage(payload.message)
-				} else if (payload.message === 'OFF') {
-					document.getElementById("BattPower").value = "OFF";
-					document.getElementById("ACPower").value = "OFF";
-					activeSource = payload.message;
-				handleSourceMessage(payload.message)
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let activeSource = '';
+		let DHactiveSource = '';
+
+        socket.on('mqttMessage', (payload) => {
+			if (payload.topic === 'MYMQTTDRYER/TemperatureHumidityTopic') {
+				// console.log("Received from MYMQTTDRYER/TemperatureHumidityTopic");
+				const messageObj = JSON.parse(payload.message);
+				// console.log(`Temperature values:`);
+				for (let i = 0; i < messageObj.Temperature.length; i++) {
+					document.getElementById('Temperature' + i).value = messageObj.Temperature[i];
+					// console.log(`Index ${i}: ${messageObj.Temperature[i]}`);
 				}
-			} else if (payload.topic === 'MYMQTT/SourceModeTopic') {
-				if (payload.message === 'AUTOMATIC') {
+				// console.log(`Humidity values:`);
+				for (let i = 0; i < messageObj.Humidity.length; i++) {
+					document.getElementById('Humidity' + i).value = messageObj.Humidity[i];
+					// console.log(`Index ${i}: ${messageObj.Humidity[i]}`);
+				}
+			} else if (payload.topic === 'MYMQTTDRYER/StoreStateTopic') {
+				// console.log("Received from MYMQTTDRYER/StoreStateTopic");
+				const messageObj = JSON.parse(payload.message);
+				// console.log(`Power State: ${messageObj.PowerState}`);
+				activeSource = messageObj.PowerState;
+				DHactiveSource  = messageObj.HumidifierState;
+				if (messageObj.PowerState === 'BATTERY') {
+					// console.log("BATTERY0")
+					document.getElementById("ACPower").value = "OFF";
+					document.getElementById("BattPower").value = messageObj.PowerState;
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				} else if (messageObj.PowerState === 'AC') {
+					// console.log("AC")
+					document.getElementById("BattPower").value = "OFF";
+					document.getElementById("ACPower").value = messageObj.PowerState;
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				} else if (messageObj.PowerState === 'OFF') {
+					document.getElementById("BattPower").value = "OFF";
+					document.getElementById("ACPower").value = "OFF";
+					activeSource = messageObj.PowerState;
+					handleSourceMessage(messageObj.PowerState)
+				}
+				if (messageObj.HumidifierState === 'ON') {
+					// console.log("BATTERY1")
+					DHactiveSource = messageObj.HumidifierState;
+					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
+				} else if (messageObj.HumidifierState === 'OFF') {
+					// console.log("AC")
+					DHactiveSource = messageObj.HumidifierState;
+					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
+				}
+				if (messageObj.OperationState === 'AUTOMATIC') {
+					console.log("BATTERY2")
 					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
 					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
-					handleModeMessage(payload.message)
-				} else if (payload.message === 'MANUAL') {
+					handleModeMessage(messageObj.OperationState)
+				} else if (messageObj.OperationState === 'MANUAL') {
+					// console.log("AC")
 					document.getElementById("mode").value = "MANUAL";
-					handleModeMessage(payload.message);
-				} else if (payload.message === 'OFF') {
+					handleModeMessage(messageObj.OperationState);
+				} else if (messageObj.OperationState === 'OFF') {
 					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "OFF");
 					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "OFF");
-					handleModeMessage(payload.message)
+					handleModeMessage(messageObj.OperationState)
 				}
-			} else if (payload.topic === 'MYMQTT/ACVoltageTopic'){
-				document.getElementById('ACPowerVoltage').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/ACCurrentTopic'){
-				document.getElementById('ACPowerCurrent').value = payload.message;
-			} else if (payload.topic === 'MYMQTT/ACPowerTopic'){
-				document.getElementById('ACPowerUsage').value = payload.message;
+			} else if (payload.topic === "MYMQTTDRYER/RecordPowerTopic") {
+				const messageObj = JSON.parse(payload.message); //BattPowerVoltage
+				document.getElementById('BattPowerVoltage').value = messageObj.VoltageValue;
+			} else if (payload.topic === "MYMQTTDRYER/VoltageController") {
+				const messageObj = JSON.parse(payload.message);
+				document.getElementById('VoltageReconnect').value = messageObj.VoltageReconnect;
+				document.getElementById('VoltageDisconnect').value = messageObj.VoltageDisconnect;
+			} else if (payload.topic === "MYMQTTDRYER/ESPState") {
+				const espState = payload.message;
+				document.getElementById('espState').innerText = `Controller: ${espState}`;
 			}
 		});
-		
-		function switchSource(source) {
-			console.log('<%= timerInfo.id %>');
+
+		function ToggleDehumidifier(source) {
+			// console.log('<%= timerInfo.id %>');
 			const DryingID = '<%= timerInfo.id %>';
 
 			const modeValue = document.getElementById('mode').value;
-			const topic = 'MYMQTT/SwitchSourceTopic';
+			const topic = 'MYMQTTDRYER/SwitchDehumidifierTopic';
 			socket.emit('publishMessage', { topic, message: source });
 
 			// Save data to MongoDB via the server
 			saveToMongo({
+				DehumidifierRelayState: DHactiveSource,
 				RelayState: source,  // Replace with the actual value for RelayState
 				DryingMode: modeValue,
 				DryingID: DryingID
 			});
-		}
+		};
+		
+		function switchSource(source) {
+			// console.log('<%= timerInfo.id %>');
+			const DryingID = '<%= timerInfo.id %>';
+
+			const modeValue = document.getElementById('mode').value;
+			const topic = 'MYMQTTDRYER/SwitchPowerTopic';
+			socket.emit('publishMessage', { topic, message: source });
+
+			// Save data to MongoDB via the server
+			saveToMongo({
+				DehumidifierRelayState: DHactiveSource,
+				RelayState: source,  // Replace with the actual value for RelayState
+				DryingMode: modeValue,
+				DryingID: DryingID
+			});
+		};
 		function switchSourceMode() {
 			// Ensure DryingID is properly assigned before calling this function
 			const DryingID ='<%= timerInfo.id %>';
@@ -102,18 +120,17 @@
 			const modeValue = document.getElementById('mode').value;
 			document.getElementById('acbutton').disabled = (modeValue === "AUTOMATIC");
 			document.getElementById('batterybutton').disabled = (modeValue === "AUTOMATIC");
-			const topic = 'MYMQTT/SwitchSourceModeTopic';
+			const topic = 'MYMQTTDRYER/SwitchSourceModeTopic';
 			socket.emit('publishMessage', { topic, message: modeValue });
 
 			// Save data to MongoDB via the server
 			saveToMongo({
+				DehumidifierRelayState: activeSource,
 				RelayState: activeSource,
 				DryingMode: modeValue,
 				DryingID: DryingID
 			});
 		}
-
-
 		function saveToMongo(data) {
 			// Assuming you have a route on the server for saving data to MongoDB, replace '/SaveToMongo' with the correct route
 			const saveToMongoRoute = '/SaveToMongo';
@@ -130,9 +147,6 @@
 				.then(message => console.log(message))
 				.catch(error => console.error('Error saving data to MongoDB:', error));
 		}
-
-
-
 		function handleSourceMessage(source) {
 			var acButton = document.getElementById('acbutton');
 			var batteryButton = document.getElementById('batterybutton');
@@ -148,6 +162,17 @@
 				// Handle other cases or reset both buttons if needed
 				acli.style.backgroundColor = '';
 				batli.style.backgroundColor = '';
+			}
+		}
+
+		function DehumidifiierhandleSourceMessage(source) {
+
+			// Update the background color of the AC and Battery buttons
+			if (source === 'ON') {
+				dhli.style.backgroundColor = '#800000'; // Change this to your desired color
+			} else if (source === 'OFF'){
+				// Handle other cases or reset both buttons if needed
+				dhli.style.backgroundColor = '';
 			}
 		}
 
@@ -167,41 +192,72 @@
 	
 
 <div id="passwordHelpBlock" class="form-text" >
-    Drying on progress.
+    Drying in progress.
 </div>
 
 <!-- The Counting Down Time Remaining should display below with the id="timeRemaining" -->
-<div class="form-text overflow-auto" >
+<div class="form-text overflow-auto">
     <div id="passwordHelpBlock" class="form-text">
         Time Remaining:
-        <span id="timeRemaining"></span> 
+        <span id="timeRemaining">
+            <% if (timerInfo.endTime === null) { %>
+                Free Time
+            <% } %>
+        </span> 
     </div>
 </div>
+
 <% } else { %>
 <div id="passwordHelpBlock" class="form-text" >
     Begin Drying.
 </div>
 <% } %>
 
+
 <% if (timerInfo) { %>
+<div class="row g-2">
+	<div class="col-md">
+		<div class="form-floating">
+			<input type="text" class="form-control" id="VoltageReconnect" placeholder="VoltageReconnect" value="N/A">
+			<label for="VoltageReconnect">Voltage Reconnect</label>
+		</div>
+	</div>
+	<div class="col-md">
+		<div class="form-floating">
+			<input type="text" class="form-control" id="VoltageDisconnect" placeholder="VoltageDisconnect" value="N/A">
+			<label for="VoltageDisconnect">Voltage Disconnect</label>
+		</div>
+	</div>
+	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Submit Voltage Control</button>
+</div>
+
 <div class="">
 	<div class="box-info">
-		<button id="batterybutton" style="border: 0px;" onclick="switchSource('SOLAR')">
-		<li class="group-a" id="batli">
-			<i class='bx bxs-car-battery'></i>
-			<span class="text">
-				<p class="text-a">Battery</p>
-			</span>
-		</li>
+		<button id="batterybutton" style="border: 0px;" onclick="switchSource('BATTERY')">
+			<li class="group-a" id="batli">
+				<i class='bx bxs-car-battery'></i>
+				<span class="text">
+					<p class="text-a">Battery</p>
+				</span>
+			</li>
 		</button>
 
 		<button id="acbutton" style="border: 0px;" onclick="switchSource('AC')">
-		<li class="group-a" id="acli">
-			<i class='bx bxs-bolt' ></i>
-			<span class="text">
-				<p class="text-a">AC</p>
-			</span>
-		</li>
+			<li class="group-a" id="acli">
+				<i class='bx bxs-bolt-circle' ></i>
+				<span class="text">
+					<p class="text-a">AC</p>
+				</span>
+			</li>
+		</button>
+
+		<button id="DehumidifierButton" style="border: 0px;" onclick="ToggleDehumidifier('Toggle')">
+			<li class="group-a" id="dhli">
+				<i class="bx bi-moisture"></i>
+				<span class="text">
+					<p class="text-a">Dehumidifier</p>
+				</span>
+			</li>
 		</button>
 			
 		<li class="group-a" style="height: 128px;">
@@ -221,6 +277,18 @@
 <% } else { %>
 <% } %>
 
+<% if (typeof error !== 'undefined' && error) { %>
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		<strong>Error!</strong> <%= error %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+<% } else if ((typeof error !== 'undefined' && success)) { %>
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		<strong>Successfully!</strong> <%= success %>.
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+<% } %>
+
 <form id="finishDryingForm" action="/FinishDrying" method="POST">
 	<div class="box-info">
 		<li style="overflow: hidden;">
@@ -229,7 +297,7 @@
 				<% if (timerInfo) { %>
 					<p>Item</p>
 					<div class="overflow-y-hidden"><%= timerInfo.ItemName %></div>
-					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b">
+					<input type="text" value="<%= timerInfo.id %>" style="overflow: hidden;margin-top: 20px;"name="DryingID" id="name" class="input-b" hidden>
 					<input type="text" value="<%= timerInfo.ItemName %>" style="overflow: hidden;margin-top: 20px;"name="ItemName" id="name" class="input-b" hidden>
 				<% } else { %>
 					<!-- Handle the case where timerInfo is null -->
@@ -243,8 +311,8 @@
 			<span class="text">
 			<% if (timerInfo) { %>
 				<p>Quantity</p>
-				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
-				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+				<div class="overflow-y-hidden"><%= timerInfo.ItemQuantity %></div>
+				<input type="text" value="<%= timerInfo.ItemQuantity %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
 			<% } else { %>
 				<!-- Handle the case where timerInfo is null -->
 				<p>Quantity</p>
@@ -257,7 +325,7 @@
 			<span class="text">
 				<% if (timerInfo) { %>
 					<p>Start Time</p>
-					<div class="overflow-y-hidden"><%= timerInfo.startTime %></div>
+					<div class="overflow-y-hidden"><%= new Date(timerInfo.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></div>
 					<input type="datetime" value="<%= timerInfo.startTime %>" style="overflow-x: auto; margin-top: 20px;" name="startTime" id="name" class="input-b" hidden>
 				<% } else { %>
 					<!-- Handle the case where timerInfo is null -->
@@ -271,8 +339,9 @@
 			<span class="text">
 			<% if (timerInfo) { %>
 				<p>End Time</p>
-				<div class="overflow-y-hidden"><%= timerInfo.endTime %></div>
+				<div class="overflow-y-hidden"><%= new Date(timerInfo.endTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></div>
 				<input type="datetime" value="<%= timerInfo.endTime %>" style="overflow-wrap: auto; margin-top: 20px;" name="endTime" id="name" class="input-b" hidden>
+				<input type="text" value="<%= timerInfo.TimeMode %>" style="overflow-wrap: auto; margin-top: 20px;" name="TimeMode" id="name" class="input-b" hidden>
 			<% } else { %>
 				<!-- Handle the case where timerInfo is null -->
 				<p>End Time</p>
@@ -288,12 +357,12 @@
 			</div>
 				<div class="formbold-input-group">
 					<label for="Humidity" class="formbold-form-label">Average Humidity (%)</label>
-					<input type="text" value="N/A" name="Humidity" id="Humidity" class="input form-control" readonly>
+					<input type="text" value="N/A" name="Humidity13" id="Humidity13" class="input form-control" readonly>
 				</div>
 		
 				<div class="formbold-input-group">
 					<label for="Temperature" class="formbold-form-label">Avergae Temperature (&deg;C)</label>
-					<input type="text" value="N/A" name="Temperature" id="Temperature" class="input form-control" readonly>
+					<input type="text" value="N/A" name="Temperature13" id="Temperature13" class="input form-control" readonly>
 				</div>
 		</div>
 
@@ -323,15 +392,7 @@
 
 			<div class="formbold-input-group">
 				<label for="ACPower" class="formbold-form-label">AC Power Source</label>
-				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input" readonly>
-			</div>
-
-			<div class="formbold-input-group">
-				<label for="ACPowerUsage" class="formbold-form-label">Power Usage Over Time (Initial/Current)</label>
-			</div>
-			<div class="input-group">
-				<input value="N/A" type="text" aria-label="First name" class="input form-control text-center" readonly>
-				<input value="N/A" type="text" aria-label="First name" style="border: 0px;" class="input form-control text-center" readonly>
+				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input form-control" readonly>
 			</div>
 		</div>
 	</div>
@@ -340,7 +401,7 @@
 <div class="table-data">
 	<div class="order">
 		<div class="">
-			<h3>Temperature/Humidity Readings 
+			<h3>Temperature/Humidity 
 				<a 
 				style="z-index: 3000;"
 				tabindex="0" 
@@ -349,12 +410,23 @@
 				data-bs-toggle="popover" 
 				data-bs-trigger="focus" 
 				data-bs-title="Legends" 
-				data-bs-content="U/B . R/L= Upper/Bottom . Right/Left TP/RH = Temp/RelativeHumidity"><i class="bi bi-question-circle"></i>
+				data-bs-content="U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)"><i class="bi bi-question-circle"></i>
 				</a>
 			</h3>
 		</div>
 		<table id="ProfileTable">
 			<thead>
+				<tr>
+					<th>
+						<td>
+							<div class="input-group">
+								<input value="Room TP(&deg;C)/RH(%)" type="text" aria-label="First name" style="border-left: solid 0px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature12" name="Temperature12" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity12" name="Humidity12" class="form-control text-center" readonly>
+							</div>
+						</td>
+					</th>
+				</tr>
 				<tr>
 					<th>
 						<td class="text-center">
@@ -374,15 +446,15 @@
 						<td class="text-center">
 							<div class="input-group">
 								<input value="U.R TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature0" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature1" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature2" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature0" name="Temperature0" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature1" name="Temperature1" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature2" name="Temperature2" class="form-control text-center" readonly>
 							</div>
 							<div class="input-group">
 								<input value="U.R RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity0"class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity1" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity2" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity0" name="Humidity0" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity1" name="Humidity1" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity2" name="Humidity2" class="form-control text-center" readonly>
 							</div>
 						</td>
 					</th>
@@ -392,15 +464,15 @@
 						<td class="text-center">
 							<div class="input-group">
 								<input value="B.R TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature3" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature4" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature5" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature3" name="Temperature3" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature4" name="Temperature4" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature5" name="Temperature5" class="form-control text-center" readonly>
 							</div>
 							<div class="input-group">
 								<input value="B.R RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity3" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity4" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity5" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity3" name="Humidity3" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity4" name="Humidity4" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity5" name="Humidity5" class="form-control text-center" readonly>
 							</div>
 						</td>
 					</th>
@@ -410,15 +482,15 @@
 						<td class="text-center">
 							<div class="input-group">
 								<input value="U.L TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature6" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature7" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature8" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature6" name="Temperature6" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature7" name="Temperature7" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature8" name="Temperature8" class="form-control text-center" readonly>
 							</div>
 							<div class="input-group">
 								<input value="U.L RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity6" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity7" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity8" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity6" name="Humidity6" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity7" name="Humidity7" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity8" name="Humidity8" class="form-control text-center" readonly>
 							</div>
 						</td>
 					</th>
@@ -428,20 +500,20 @@
 						<td class="text-center">
 							<div class="input-group">
 								<input value="B.L TP (&deg;C)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-bottom: 0px; border-bottom-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature9" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature10" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature11" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Temperature9" name="Temperature9" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature10" name="Temperature10" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Temperature11" name="Temperature11" class="form-control text-center" readonly>
 							</div>
 							<div class="input-group">
 								<input value="B.L RH (%)" type="text" aria-label="First name" style="border-left: solid 10px #800000;border-top: 0px; border-top-left-radius: 0;" class="form-control text-center" readonly disabled>
-								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity9" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity10" class="form-control text-center" readonly>
-								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity11" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="First name" style="border: 0px;" id="Humidity9" name="Humidity9" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity10" name="Humidity10" class="form-control text-center" readonly>
+								<input value="N/A" type="text" aria-label="Last name" style="border: 0px;" id="Humidity11" name="Humidity11" class="form-control text-center" readonly>
 							</div>
 						</td>
 					</th>
 				</tr>
-			</tbody>
+			</tbody>	
 		</table>
 	</div>	
 </div>
@@ -482,6 +554,17 @@
 		}
 	}
 
+	function TimehandleModeChange() {
+		var TimeMode = document.getElementById("TimeMode");
+		var TimeSelection = document.getElementById("TimeSelection");
+
+		if (TimeMode.value === "TIMER") {
+			TimeSelection.style.display = "block";
+		} else if (TimeMode.value = "NOTIMER"){
+			TimeSelection.style.display = "none";
+		}
+	}
+
 
   window.onload = function () {
     // Extract endTime from timerInfo and convert it to a Date object
@@ -500,37 +583,43 @@
 
 <script>
     function checkTimeValidity() {
-        // Check if days, hours, and minutes are valid numbers and non-negative
-        var days = parseInt(document.getElementById('days').value);
-        var hours = parseInt(document.getElementById('hours').value);
-        var minutes = parseInt(document.getElementById('minutes').value);
-
-        if (isNaN(days) || isNaN(hours) || isNaN(minutes) || days < 0 || hours < 0 || minutes < 0) {
-            // If any of the values are invalid, show an alert
-            document.getElementById('alertMessage').innerText = "Please enter valid numeric and non-negative values for days, hours, and minutes.";
-            document.getElementById('alert').style.display = 'block';
-            return false; // Prevent form submission
-        }
-
-		if (days > 25) {
-			document.getElementById('alertMessage').innerText = "Error: Days input limits at 25.";
-            document.getElementById('alert').style.display = 'block';
-            return false; // Prevent form submission
-		}
-		if (hours > 23) {
-			document.getElementById('alertMessage').innerText = "Error: Hours input limits at 23.";
-            document.getElementById('alert').style.display = 'block';
-            return false; // Prevent form submission
-		}
-		if (minutes > 59) {
-			document.getElementById('alertMessage').innerText = "Error: Minutes input limits at 59.";
-            document.getElementById('alert').style.display = 'block';
-            return false; // Prevent form submission
-		}
-
-        // Allow form submission
-        return true;
+    // Check if the selected timer mode is "No Timer"
+    var TimeMode = document.getElementById('TimeMode').value;
+    if (TimeMode === 'NOTIMER') {
+        return true; // Return true to allow form submission without checking time validity
     }
+    // Check if days, hours, and minutes are valid numbers and non-negative
+    var days = parseInt(document.getElementById('days').value);
+    var hours = parseInt(document.getElementById('hours').value);
+    var minutes = parseInt(document.getElementById('minutes').value);
+	console.log(days,hours,minutes)
+
+    if (isNaN(days) || isNaN(hours) || isNaN(minutes) || (days <= 0 && hours <= 0 && minutes <= 0)) {
+        // If any of the values are invalid, show an alert
+        document.getElementById('alertMessage').innerText = "Please enter a number greater than '0' for days, hours, and minutes.";
+        document.getElementById('alert').style.display = 'block';
+        return false; // Prevent form submission
+    }
+
+    if (days > 25) {
+        document.getElementById('alertMessage').innerText = "Error: Days input limits at 25.";
+        document.getElementById('alert').style.display = 'block';
+        return false; // Prevent form submission
+    }
+    if (hours > 23) {
+        document.getElementById('alertMessage').innerText = "Error: Hours input limits at 23.";
+        document.getElementById('alert').style.display = 'block';
+        return false; // Prevent form submission
+    }
+    if (minutes > 59) {
+        document.getElementById('alertMessage').innerText = "Error: Minutes input limits at 59.";
+        document.getElementById('alert').style.display = 'block';
+        return false; // Prevent form submission
+    }
+    // Allow form submission
+    return true;
+}
+
     // Add an event listener to the form submission
     document.getElementById('startDryingForm').addEventListener('submit', function (event) {
         // Check the validity of the selected time and input values before allowing the form submission
@@ -541,4 +630,42 @@
     });
 </script>
 
+<% if (timerInfo) { %>
+<script>
+    document.getElementById("StopDrying").addEventListener("click", function() {
+        document.getElementById("finishDryingForm").submit();
+    });
+</script>
 
+<script>
+	function sendDisconnectMessage() {
+		const topic = 'MYMQTTDRYER/VoltageController';
+		const disconnectValue = document.getElementById('VoltageDisconnect').value;
+		const connectValue = document.getElementById('VoltageReconnect').value;
+
+		// Check if the input values are numbers
+		if (isNaN(disconnectValue) || isNaN(connectValue)) {
+			// Show a bootstrap error
+			alert('Please enter valid numbers for Voltage Disconnect and Voltage Reconnect.');
+			return;
+		}
+
+		// Check if the reconnect value is higher than the disconnect value
+		if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
+			// Show a bootstrap error
+			alert('Voltage Reconnect value should be higher than Voltage Disconnect value.');
+			return;
+		}
+
+		// Check if the input values are less than or equal to 100
+		if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
+			// Show a bootstrap error
+			alert('Disconnect Value Should not be less than 9 and Connect Value shot not be over 14.');
+			return;
+		}
+
+		const message = JSON.stringify({ VoltageDisconnect: parseFloat(disconnectValue), VoltageReconnect: parseFloat(connectValue) });
+		socket.emit('publishVoltage', { topic, message });
+	}
+</script>
+<% } %>

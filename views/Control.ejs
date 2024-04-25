@@ -22,13 +22,10 @@
 					// console.log(`Index ${i}: ${messageObj.Humidity[i]}`);
 				}
 			} else if (payload.topic === 'MYMQTTDRYER/StoreStateTopic') {
-				console.log("Received from MYMQTTDRYER/StoreStateTopic");
 				const messageObj = JSON.parse(payload.message);
-				console.log(`Power State: ${messageObj.PowerState}`);
 				activeSource = messageObj.PowerState;
 				DHactiveSource  = messageObj.HumidifierState;
 				if (messageObj.PowerState === 'BATTERY') {
-					console.log("BATTERY0")
 					document.getElementById("ACPower").value = "OFF";
 					document.getElementById("BattPower").value = messageObj.PowerState;
 					activeSource = messageObj.PowerState;
@@ -46,7 +43,6 @@
 					handleSourceMessage(messageObj.PowerState)
 				}
 				if (messageObj.HumidifierState === 'ON') {
-					console.log("BATTERY1")
 					DHactiveSource = messageObj.HumidifierState;
 					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
 				} else if (messageObj.HumidifierState === 'OFF') {
@@ -55,7 +51,6 @@
 					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
 				}
 				if (messageObj.OperationState === 'AUTOMATIC') {
-					console.log("BATTERY2")
 					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
 					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
 					handleModeMessage(messageObj.OperationState)
@@ -71,10 +66,10 @@
 			} else if (payload.topic === "MYMQTTDRYER/RecordPowerTopic") {
 				const messageObj = JSON.parse(payload.message); //BattPowerVoltage
 				document.getElementById('BattPowerVoltage').value = messageObj.VoltageValue;
-			} else if (payload.topic === "MYMQTTDRYER/HumidityRecDisc") {
+			} else if (payload.topic === "MYMQTTDRYER/VoltageController") {
 				const messageObj = JSON.parse(payload.message);
-				document.getElementById('HumidityReconnect').value = messageObj.HumidityReconnect;
-				document.getElementById('HumidityDisconnect').value = messageObj.HumidityDisconnect;
+				document.getElementById('VoltageReconnect').value = messageObj.VoltageReconnect;
+				document.getElementById('VoltageDisconnect').value = messageObj.VoltageDisconnect;
 			} else if (payload.topic === "MYMQTTDRYER/ESPState") {
 				const espState = payload.message;
 				document.getElementById('espState').innerText = `Controller: ${espState}`;
@@ -211,17 +206,17 @@
 <div class="row g-2">
 	<div class="col-md">
 		<div class="form-floating">
-			<input type="text" class="form-control" id="HumidityReconnect" placeholder="HumidityReconnect" value="N/A">
-			<label for="HumidityReconnect">Humidity Reconnect</label>
+			<input type="text" class="form-control" id="VoltageReconnect" placeholder="VoltageReconnect" value="N/A">
+			<label for="VoltageReconnect">Voltage Reconnect</label>
 		</div>
 	</div>
 	<div class="col-md">
 		<div class="form-floating">
-			<input type="text" class="form-control" id="HumidityDisconnect" placeholder="HumidityDisconnect" value="N/A">
-			<label for="HumidityDisconnect">Humidity Disconnect</label>
+			<input type="text" class="form-control" id="VoltageDisconnect" placeholder="VoltageDisconnect" value="N/A">
+			<label for="VoltageDisconnect">Voltage Disconnect</label>
 		</div>
 	</div>
-	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Submit Humidity Control</button>
+	<button type="button" class="btn btn-warning" onclick="sendDisconnectMessage()" >Send Voltage Control</button>
 </div>
 
 <div class="">
@@ -251,7 +246,7 @@
 					<p class="text-a">Dehumidifier</p>
 				</span>
 			</li>
-			</button>
+		</button>
 			
 		<li class="group-a" style="height: 128px;">
 			<i class='bx bxs-cog'></i>
@@ -455,33 +450,33 @@
 
 <script>
 	function sendDisconnectMessage() {
-		const topic = 'MYMQTTDRYER/HumidityRecDisc';
-		const disconnectValue = document.getElementById('HumidityDisconnect').value;
-		const connectValue = document.getElementById('HumidityReconnect').value;
+		const topic = 'MYMQTTDRYER/VoltageController';
+		const disconnectValue = document.getElementById('VoltageDisconnect').value;
+		const connectValue = document.getElementById('VoltageReconnect').value;
 
 		// Check if the input values are numbers
 		if (isNaN(disconnectValue) || isNaN(connectValue)) {
 			// Show a bootstrap error
-			alert('Please enter valid numbers for Humidity Disconnect and Humidity Reconnect.');
+			alert('Please enter valid numbers for Voltage Disconnect and Voltage Reconnect.');
 			return;
 		}
 
 		// Check if the reconnect value is higher than the disconnect value
 		if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
 			// Show a bootstrap error
-			alert('Humidity Reconnect value should be higher than Humidity Disconnect value.');
+			alert('Voltage Reconnect value should be higher than Voltage Disconnect value.');
 			return;
 		}
 
 		// Check if the input values are less than or equal to 100
 		if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
 			// Show a bootstrap error
-			alert('Please enter valid numbers less than or equal to 100 for Humidity Disconnect and Humidity Reconnect.');
+			alert('Disconnect Value Should not be less than 9 and Connect Value shot not be over 14.');
 			return;
 		}
 
-		const message = JSON.stringify({ HumidityDisconnect: parseFloat(disconnectValue), HumidityReconnect: parseFloat(connectValue) });
-		socket.emit('publishHum', { topic, message });
+		const message = JSON.stringify({ VoltageDisconnect: parseFloat(disconnectValue), VoltageReconnect: parseFloat(connectValue) });
+		socket.emit('publishVoltage', { topic, message });
 	}
 </script>
 <!-- MAIN -->

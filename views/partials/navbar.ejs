@@ -6,7 +6,7 @@
     socket.on('mqttMessage', (payload) => {
         if (payload.topic === "MYMQTTDRYER/ESPState") {
             const espState = payload.message;
-            document.getElementById('espState').innerText = `Controller: ${espState}`;
+            document.getElementById('espState').innerText = `Dryer: ${espState}`;
         }
     });
 </script>
@@ -14,7 +14,7 @@
 <nav>
     <i class='bx bx-menu' ></i>
     <div class="form-text" id="espState">
-        Controller: Loading...
+        Dryer: Loading...
     </div>
     <form action="#">
     </form>
