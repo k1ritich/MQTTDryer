@@ -72,7 +72,7 @@
 				document.getElementById('VoltageDisconnect').value = messageObj.VoltageDisconnect;
 			} else if (payload.topic === "MYMQTTDRYER/ESPState") {
 				const espState = payload.message;
-				document.getElementById('espState').innerText = `Controller: ${espState}`;
+				document.getElementById('espState').innerText = `Dryer: ${espState}`;
 			}
 		})
 
