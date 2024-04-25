@@ -129,6 +129,99 @@ const SensorDataSchema = new Schema({
     },
 }, { timestamps: false });
 
+const TemperatureLogSchema = new Schema({
+  Drying_id: {
+    type: String,
+    required: false,
+  },
+  DryingTitle: {
+    type: String,
+    required: false,
+  },
+  ItemName: {
+    type: String,
+    required: false,
+  },
+  ItemQuantity: {
+    type: Number,
+    required: false,
+  },
+  logTime: {
+    type: Date,
+    required: false,
+  },
+  Temperature: {
+      type: [Number],
+      required: false,
+  },
+  Humidity: {
+      type: [Number],
+      required: false,
+  },
+}, { timestamps: false });
+
+const oneMinuteTemperatureLogSchema = new Schema({
+  Drying_id: {
+    type: String,
+    required: false,
+  },
+  DryingTitle: {
+    type: String,
+    required: false,
+  },
+  ItemName: {
+    type: String,
+    required: false,
+  },
+  ItemQuantity: {
+    type: Number,
+    required: false,
+  },
+  logTime: {
+    type: Date,
+    required: false,
+  },
+  Temperature: {
+      type: [Number],
+      required: false,
+  },
+  Humidity: {
+      type: [Number],
+      required: false,
+  },
+}, { timestamps: false });
+
+const fiveMinuteTemperatureLogSchema = new Schema({
+  Drying_id: {
+    type: String,
+    required: false,
+  },
+  DryingTitle: {
+    type: String,
+    required: false,
+  },
+  ItemName: {
+    type: String,
+    required: false,
+  },
+  ItemQuantity: {
+    type: Number,
+    required: false,
+  },
+  logTime: {
+    type: Date,
+    required: false,
+  },
+  Temperature: {
+      type: [Number],
+      required: false,
+  },
+  Humidity: {
+      type: [Number],
+      required: false,
+  },
+}, { timestamps: false });
+
 const CreateProfile = new mongoose.Schema({
     CreatedBy: {
         type: String,
@@ -191,5 +284,8 @@ const Models = {
     RelayStates: mongoose.model('RelayStates', RelayState), // Renamed to be consistent
     CreateProfiles: mongoose.model('Profiles', CreateProfile),
     SensorData: mongoose.model('SensorDatas', SensorDataSchema),
+    TemperatureLog: mongoose.model('TemperatureLogs', TemperatureLogSchema),
+    oneMinuteTemperatureLog: mongoose.model('oneMinuteTemperatureLogs', oneMinuteTemperatureLogSchema),
+    fiveMinuteTemperatureLog: mongoose.model('fiveMinuteTemperatureLogs', fiveMinuteTemperatureLogSchema),
   };
 module.exports = Models;
