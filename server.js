@@ -283,23 +283,21 @@ Promise.all(subscribePromises)
 
           
       // Unsubscribe from the topics
-      const topics1 = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
+      const topics1 = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/VoltageController']; // Add your subscribed topics here
       topics1.forEach((topic) => {
         mqttClient.unsubscribe(topic, (err) => {
           if (err) {
             console.error('Error unsubscribing from topic:', err);
           } else {
-            // console.log(`Unsubscribed from topic: ${topic}`);
           }
         });
       });
 
     // Unsubscribe from the topics
-    const topics = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/HumidityRecDisc']; // Add your subscribed topics here
+    const topics = ['MYMQTTDRYER/ESPState','MYMQTTDRYER/TemperatureHumidityTopic', 'MYMQTTDRYER/StoreStateTopic','MYMQTTDRYER/RecordPowerTopic','MYMQTTDRYER/VoltageController']; // Add your subscribed topics here
     topics.forEach((topic) => {
       mqttClient.subscribe(topic, (err) => {
         if (err) {
-          console.error('Error subscribing from topic:', err);
         } else {
           // console.log(`Subscribed from topic: ${topic}`);
         }
@@ -311,7 +309,7 @@ Promise.all(subscribePromises)
       mqttClient.publish(payload.topic, payload.message);
     });
 
-    socket.on('publishHum', (payload) => {
+    socket.on('publishVoltage', (payload) => {
       mqttClient.publish(payload.topic, payload.message, { retain: true });
     });    
   });
@@ -789,6 +787,7 @@ app.post('/SaveToMongo', async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 });
+
 cron.schedule('*/12 * * * *', async () => {
   try {
       const response = await axios.get('https://mqttdryer.onrender.com/');
