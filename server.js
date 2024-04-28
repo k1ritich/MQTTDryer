@@ -99,7 +99,7 @@ mqttClient.on('connect', () => {
   const topic = [
       "MYMQTTDRYER/TimerRequest",
       "MYMQTTDRYER/FinishData",
-      'MYMQTTDRYER/RecordTemperatureHumidityTopic',
+      'MYMQTTDRYER/RecordHalfMinuteLogTemperatureHumidityTopic', 
       'MYMQTTDRYER/RecordOneMinuteLogTemperatureHumidityTopic',
       'MYMQTTDRYER/RecordFiveMinuteLogTemperatureHumidityTopic'
   ];
@@ -153,7 +153,7 @@ Promise.all(subscribePromises)
       // console.log('Hello World');
       return;
     }
-    if (payload.topic === 'MYMQTTDRYER/TemperatureHumidityTopic') {
+    if (payload.topic === 'MYMQTTDRYER/RecordHalfMinuteLogTemperatureHumidityTopic') {
       const activeTimers = await StartDryingModel.find({ Status: "On-going" }).exec();
       const firstActiveTimer = activeTimers.length > 0 ? activeTimers[0] : null;
       if (!firstActiveTimer) {
@@ -175,7 +175,7 @@ Promise.all(subscribePromises)
         } catch (error) {
           console.error('Error parsing JSON or saving to MongoDB:', error);
         }
-        mqttClient.publish('MYMQTTDRYER/TemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
+        mqttClient.publish('MYMQTTDRYER/RecordHalfMinuteLogTemperatureHumidityTopic',"", { qos: 2, retain: true }, (err) => {
           if (err) {
             console.error('Error publishing message:', err);
           } else {
