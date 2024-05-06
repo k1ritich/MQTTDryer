@@ -623,8 +623,6 @@ app.post('/FinishDrying', async (req, res) => {
     Temperature[i] = req.body[`Temperature${i}`];
     Humidity[i] = req.body[`Humidity${i}`];
   }
-  // console.log(Temperature);
-  // console.log(Humidity);
 
   const activeTimer = await StartDryingModel.findOne({ _id: req.body.DryingID }).exec();
   if (activeTimer) {
@@ -650,6 +648,7 @@ app.post('/FinishDrying', async (req, res) => {
     const sensorData = new SensorDataModel(mappedData);
     await sensorData.save();
     activeTimer.Status = "Complete";
+    activeTimer.endTime = new Date();
     await activeTimer.save();
     // console.log("Sensor data saved successfully!");
 
@@ -780,7 +779,7 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
   });
 });
-app.post('/EditUser/:id', async (req, res) => {
+app.post('/EditUser/:id', upload.single('NewUserProfileImage'), async (req, res) => {
   try {
     const userId = req.params.id;
     const { FullName, UnivStudID, EmailAddress, PhoneNumber, RoleSelect, UserProfileImage} = req.body;
@@ -823,7 +822,7 @@ app.post('/UpdateUser/:id', upload.single('NewUserProfileImage'), async (req, re
             user.ProfileImage = imagePath;
           }
           await user.save();
-          req.session.success = "Updated Profile and password is changed (Relogin if you change your profile picture)"
+          req.session.success = "Updated Profile and password is changed (Relogin!)"
           res.redirect('/');
         } else {
           req.session.error = "Old Password is incorrect"
@@ -839,7 +838,7 @@ app.post('/UpdateUser/:id', upload.single('NewUserProfileImage'), async (req, re
               user.ProfileImage = imagePath;
           }
           await user.save();
-          req.session.success = "Updated Profile (Relogin if you change your profile picture)"
+          req.session.success = "Updated Profile (Relogin)"
           res.redirect('/');
       } else if (!OldSecurityKey !== !SecurityKey) {
         req.session.error = "If you wish to change password provide the New/Old Password"

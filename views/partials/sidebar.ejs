@@ -58,12 +58,12 @@
                     <!-- Modal Body Start -->
                     <div class="modal-body">
                         <strong><label for="DryingTitle" class="form-label">Drying Title</label></strong>
-                        <input type="text" name="DryingTitle" id="DryingTitle" class="form-control" aria-describedby="passwordHelpBlock"  required>
+                        <input type="text" name="DryingTitle" id="DryingTitle" class="form-control" aria-describedby="passwordHelpBlock" required>
     
                         <strong><label for="ItemName" class="form-label mt-3">Item Name</label></strong>
                         <input type="text" name="ItemName" id="ItemName" class="form-control" aria-describedby="passwordHelpBlock"  required>
                         
-                        <strong><label for="ItemQuantity" class="form-label mt-3">Item Quantity</label></strong>
+                        <strong><label for="ItemQuantity" class="form-label mt-3">Item Quantity/Unit</label></strong>
                         <input type="text" name="ItemQuantity" id="ItemQuantity" class="form-control" aria-describedby="passwordHelpBlock" required>
 
                         <input type="text" name="status" value="On-going" hidden>
@@ -255,7 +255,7 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
       
-                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST" enctype="multipart/form-data>
+                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST" enctype="multipart/form-data">
                       <!-- Modal Body Start -->
                       <div class="modal-body">
                           <strong><label for="FullName" class="form-label">Full Name</label></strong>
