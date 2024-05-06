@@ -6,23 +6,25 @@
     socket.on('mqttMessage', (payload) => {
         if (payload.topic === "MYMQTTDRYER/ESPState") {
             const espState = payload.message;
-            document.getElementById('espState').innerText = `Dryer: ${espState}`;
+            document.getElementById('espState').innerText = `${espState}`;
         }
     });
 </script>
 <% }%>
 <nav>
     <i class='bx bx-menu' ></i>
-    <div class="form-text" id="espState">
-        Dryer: Loading...
-    </div>
-    <form action="#">
-    </form>
     <input type="checkbox" id="switch-mode" hidden>
-    <!-- <label for="switch-mode" class="switch-mode"></label> Dark Mode -->
-    <!-- Button trigger modal -->
     <a href="#" class="profile" data-bs-toggle="modal" data-bs-target="#UpdateUser<%= UserDetail._id %>">
-        <img src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
+        <img style="border: 1px black solid;" src="<%= UserDetail.ProfileImage ? UserDetail.ProfileImage : 'uploads/Default.webp' %>" alt="Profile Image">
     </a>
+    <form action="#">
+        <span><%= UserDetail.FullName %></span>
+    </form>
+    <div>
+        Dryer:
+        <strong class="form-text" id="espState">
+         Loading...
+        </strong>
+    </div>
 </nav>
 <!-- NAVBAR -->

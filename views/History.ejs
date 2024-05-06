@@ -54,6 +54,106 @@
 					<td class="text-center"><span class="status process">Overtime</span></td>
 					<% }%> 
 					<td class="text-center">
+						
+					</td>
+				</tr>
+				<% } %>
+				
+				<% MyHistory.forEach((history, index) => { %>
+					<tr>
+						<td class="text-center">
+							<% if (onGoingTimers) { %>
+								<p2><%= index + 2 %>.</p2>
+							<% } else {  %>
+							<p2><%= index + 1 %>.</p2>
+							<% } %>
+							<p2><img src="<%= history.UserProfPic?  history.UserProfPic : '/Default.webp' %>"></p2>
+						</td>
+						<td class="text-center">
+							<p2><%= history.UserName %></p2>
+						</td>
+						<td class="text-center">
+							<p2><%= history.SubmitBy %></p2>
+						</td>
+						<td class="text-center"><%= history.DryingTitle %></td>
+						<td class="text-center"><span><%= history.ItemQuantity %></span></td>
+						<td class="text-center"><span><%= new Date(history.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></span></td>
+						<td class="text-center"><span><%= new Date(history.stopTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'})%></span></td>
+						<td class="text-center"><span id="Duration<%= index %>"></span></td>
+						<% if (history.Status === 'Complete') { %>
+						<td class="text-center"><span class="status completed">Complete</span></td>
+						<% } else if (history.Status === 'On-going') {%>
+						<td class="text-center"><span class="status pending">On-going</span></td>
+						<% } else if (history.Status === 'OverTime') {%>
+						<td class="text-center"><span class="status process">Overtime</span></td>
+						<% }%> 
+						<td class="text-center">
+							<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger" id="downloadPDFButton<%= history._id%>">Download</button>
+						</td>
+					</tr>
+				<% }); %>
+			</tbody>
+		</table>
+	</div>	
+</div>
+
+<!-- Data Table -->
+
+<div class="table-data">
+	<div class="order">
+		<div class="">
+			<h3>Activity Logs</h3>
+		</div>
+		<% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> <%= error %>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+        <% } else if ((typeof error !== 'undefined' && success)) { %>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Successfully!</strong> <%= success %>.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+        <% } %>
+		<table id="MyDataTable">
+			<thead>
+				<tr>
+					<th class="text-center">#</th>
+					<th class="text-center">Started By</th>
+					<th class="text-center">Submited By</th>
+					<th class="text-center">Drying Title</th>
+					<th class="text-center">Item Quantity</th>
+					<th class="text-center">Start Time</th>
+					<th class="text-center">End Time</th>
+					<th class="text-center">Duration</th>
+					<th class="text-center">Status</th>
+					<th class="text-center">Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% if (onGoingTimers) { %>
+				<tr>
+					<td class="text-center">
+						<p2>1.</p2>
+						<p2><img src="<%= onGoingTimers.UserProfPic?  onGoingTimers.UserProfPic : '/Default.webp' %>"></p2>
+					</td>
+					<td class="text-center">
+						<p2><%= onGoingTimers.UserName %></p2>
+					</td>
+					<td class="text-center">Not Yet Done</td>
+					<td class="text-center"><%= onGoingTimers.DryingTitle %></td>
+					<td class="text-center"><span><%= onGoingTimers.ItemQuantity %></span></td>
+					<td class="text-center"><span><%= new Date(onGoingTimers.startTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) %></span></td>
+					<td class="text-center"><span><%= onGoingTimers.endTime ? new Date(onGoingTimers.endTime).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) : 'N/A' %></span></td>
+					<td class="text-center"><span id=></span></td>
+					<% if (onGoingTimers.Status === 'Complete') { %>
+					<td class="text-center"><span class="status completed">Complete</span></td>
+					<% } else if (onGoingTimers.Status === 'On-going') {%>
+					<td class="text-center"><span class="status pending">On-going</span></td>
+					<% } else if (onGoingTimers.Status === 'OverTime') {%>
+					<td class="text-center"><span class="status process">Overtime</span></td>
+					<% }%> 
+					<td class="text-center">
 						<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger" id="">Download</button>
 					</td>
 				</tr>
@@ -99,41 +199,7 @@
 
 <!-- MAIN -->
 
-<% MyHistory.forEach((history, index) => { %>
-	<!-- Modal -->
-	<div class="modal fade" id="Download<%= history._id %>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-		  <div class="container modal-content" style="border-left: #800000 10px solid; box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.75);">
-			  <div class="modal-header">
-				  <h1 class="modal-title fs-5" id="staticBackdropLabel">Download Data</h1>
-				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			  </div>
-				  <!-- Modal Body Start -->
-				  <div class="modal-body">
-					  <strong><label for="FullName" class="form-label">Full Name</label></strong>
-					  <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= history.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
-  
-					  <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
-					  <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= history.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
-					  
-					  <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
-					  <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= history.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
-  
-					  <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
-					  <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= history.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
-				  </div>
-				  <!-- Modal Body End -->
-				  <div class="modal-footer">
-					  <div id="alert" class="container alert alert-danger mt-3" role="alert" style="display: none; text-align: center;">
-						  <span id="alertMessage"></span>
-					  </div>
-					  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					  
-				  </div>
-		  </div>
-	  </div>
-	</div>
-  <% }); %>
+
 
 
 <script>
@@ -159,6 +225,13 @@
             responsive: true,
             "style": "bootstrap5"
         });
+    });
+</script>
+
+<script>
+	$('#MyDataTable').DataTable({
+            responsive: true,
+            "style": "bootstrap5"
     });
 </script>
 
