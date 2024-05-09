@@ -449,28 +449,24 @@
 		const topic = 'MYMQTTDRYER/VoltageController';
 		const disconnectValue = document.getElementById('VoltageDisconnect').value;
 		const connectValue = document.getElementById('VoltageReconnect').value;
-
 		// Check if the input values are numbers
 		if (isNaN(disconnectValue) || isNaN(connectValue)) {
 			// Show a bootstrap error
 			alert('Please enter valid numbers for Voltage Disconnect and Voltage Reconnect.');
 			return;
 		}
-
 		// Check if the reconnect value is higher than the disconnect value
 		if (parseFloat(connectValue) <= parseFloat(disconnectValue)) {
 			// Show a bootstrap error
 			alert('Voltage Reconnect value should be higher than Voltage Disconnect value.');
 			return;
 		}
-
 		// Check if the input values are less than or equal to 100
-		if (parseFloat(disconnectValue) > 100 || parseFloat(connectValue) > 100) {
+		if (parseFloat(disconnectValue) < 9 || parseFloat(connectValue) > 13.5) {
 			// Show a bootstrap error
-			alert('Disconnect Value Should not be less than 9 and Connect Value shot not be over 14.');
+			alert('Disconnect Value should not be less than 9, and Connect Value should not be over 13.5.');
 			return;
 		}
-
 		const message = JSON.stringify({ VoltageDisconnect: parseFloat(disconnectValue), VoltageReconnect: parseFloat(connectValue) });
 		socket.emit('publishVoltage', { topic, message });
 	}
