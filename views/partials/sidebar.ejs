@@ -255,28 +255,28 @@
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
       
-                  <form id="EditUserForm" action="/EditUser/<%= profile._id %>" method="POST" enctype="multipart/form-data">
+                  <form id="EditUserForm<%= profile._id %>" action="/EditUser/<%= profile._id %>" method="POST" enctype="multipart/form-data">
                       <!-- Modal Body Start -->
                       <div class="modal-body">
                           <strong><label for="FullName" class="form-label">Full Name</label></strong>
-                          <input type="text" name="FullName" id="FullName" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
+                          <input type="text" name="FullName" id="FullName<%= profile._id %>" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.FullName %>" placeholder="E.g. Juan D. Dela Cruz" required>
       
                           <strong><label for="UnivStudID" class="form-label mt-3">StudentID/UniversityID</label></strong>
-                          <input type="text" name="UnivStudID" id="UnivStudID" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= profile.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
+                          <input type="text" name="UnivStudID" id="UnivStudID<%= profile._id %>" class="form-control" aria-describedby="passwordHelpBlock"  value="<%= profile.UnivStudID %>" placeholder="E.g. xx-xxxxxx" required>
                           
                           <strong><label for="EmailAddress" class="form-label mt-3">Email Address</label></strong>
-                          <input type="text" name="EmailAddress" id="EmailAddress" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
+                          <input type="text" name="EmailAddress" id="EmailAddress<%= profile._id %>" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.EmailAddress %>" placeholder="E.g. juandelacruz@gmail.com" required>
       
                           <strong><label for="PhoneNumber" class="form-label mt-3">Phone Number</label></strong>
-                          <input type="text" name="PhoneNumber" id="PhoneNumber" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
+                          <input type="text" name="PhoneNumber" id="PhoneNumber<%= profile._id %>" class="form-control" aria-describedby="passwordHelpBlock" value="<%= profile.PhoneNumber %>" placeholder="E.g. 09xxxxxxxxx" required>
       
                           <strong><label for="UserProfileImage" class="form-label mt-3">Profile Image</label></strong>
-                          <input type="file" name="UserProfileImage" id="UserProfileImage" class="form-control" accept="image/jpeg, image/png" aria-describedby="imageHelpBlock">
+                          <input type="file" name="UserProfileImage" id="UserProfileImage<%= profile._id %>" class="form-control" accept="image/jpeg, image/png" aria-describedby="imageHelpBlock">
                           <div id="imageHelpBlock" class="form-text">Upload a profile image (JPG, PNG, GIF, or BMP).</div>
       
                           <!-- Selection for Manual or Automatic -->
                           <strong><label class="form-label mt-3">Select Role:</label></strong> <label for="" style="font-style: italic;">(Select Carefully)</label>
-                          <select name="RoleSelect" id="RoleSelect" class="form-select">
+                          <select name="RoleSelect" id="RoleSelect<%= profile._id %>" class="form-select">
                               <option value="User" <%= profile.Role === 'User' ? 'selected' : '' %>>User</option>
                               <option value="Admin" <%= profile.Role === 'Admin' ? 'selected' : '' %>>Admin</option>
                           </select>
@@ -307,7 +307,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
         
-                    <form id="DeleteUserForm" action="/DeleteUser/<%= profile._id %>" method="POST">
+                    <form id="DeleteUserForm<%= profile._id %>" action="/DeleteUser/<%= profile._id %>" method="POST">
                         <!-- Modal Body Start -->
                         <div class="modal-body">
                           <p>Are you sure you want to delete this profile? 

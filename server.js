@@ -13,12 +13,12 @@ const fs = require('fs');
 const app = express();
 const ejs = require('ejs');
 const multer = require('multer');
-const PDFDocument = require('pdfkit');
 const pdf = require('html-pdf');
-const Docxtemplater = require('docxtemplater');
-const JSZip = require('jszip'); // Import JSZip
 const cron = require('node-cron');
 const axios = require('axios');
+const currentDate = new Date();
+const ExcelJS = require('exceljs');
+const { parse } = require('json2csv'); // Importing the 'parse' function specifically
 require('dotenv').config();
 
 app.use(session({
@@ -36,7 +36,7 @@ const SensorDataModel = Models.SensorData;
 const TemperatureLogModel = Models.TemperatureLog;
 const oneMinuteTemperatureLogModel = Models.oneMinuteTemperatureLog;
 const fiveMinuteTemperatureLogModel = Models.fiveMinuteTemperatureLog;
-const RelayStatesModel = Models.RelayStates;
+const ActivityLogModel = Models.ActivityLog;
 const CreateProfilesModel = Models.CreateProfiles;
 
 const mqttOptions = {
@@ -50,7 +50,6 @@ const httpServer = http.createServer(app);
 const mqttClient = mqtt.connect(mqttOptions);
 const port = 3000;
 const io = require('socket.io')(httpServer);
-const WebURL = '0.0.0.0'; //const WebURL = '192.168.60.95';
 
 // Connect to MongoDB
 mongoose.connect(process.env.DATABASE_URL)
@@ -83,6 +82,10 @@ mqttClient.on('connect', () => {
   const staticPaths = [
       path.join(__dirname, '.'),
       path.join(__dirname, 'uploads'),
+      path.join(__dirname, 'downloads'),
+      path.join(__dirname, 'downloads', 'CSV'),
+      path.join(__dirname, 'downloads', 'Excels'),
+      path.join(__dirname, 'downloads', 'PDF Sensor Data'),
       path.join(__dirname, 'Public', 'css'),
       path.join(__dirname, 'Public', 'js'),
       path.join(__dirname, 'Public', 'img'),
@@ -266,27 +269,33 @@ Promise.all(subscribePromises)
       try {
         const jsonData = JSON.parse(payload.message);
           const mappedData = {
-          UserName: jsonData.UserName,
-          UserID: jsonData.UserID,
-          Drying_id: jsonData._id,
-          UserProfPic: jsonData.UserProfPic,
-          DryingTitle: jsonData.DryingTitle,
-          ItemName: jsonData.ItemName,
-          ItemQuantity: jsonData.ItemQuantity,
-          Status: jsonData.Status,
-          startTime: new Date(jsonData.startTime),
-          endTime: new Date(jsonData.endTime),
-          stopTime: new Date(),
-          TimeMode: jsonData.TimeMode,
-          Temperature: jsonData.Temperature.map(Number),
-          Humidity: jsonData.Humidity.map(Number),
-          SubmitBy: jsonData.SubmitBy
-        };
+            UserName: jsonData.UserName,
+            UserID: jsonData.UserID,
+            Drying_id: jsonData._id,
+            UserProfPic: jsonData.UserProfPic,
+            DryingTitle: jsonData.DryingTitle,
+            ItemName: jsonData.ItemName,
+            ItemQuantity: jsonData.ItemQuantity,
+            Status: jsonData.Status,
+            startTime: new Date(jsonData.startTime),
+            endTime: new Date(jsonData.endTime),
+            stopTime: new Date(),
+            TimeMode: jsonData.TimeMode,
+            Temperature: jsonData.Temperature.map(Number),
+            Humidity: jsonData.Humidity.map(Number),
+            SubmitBy: jsonData.SubmitBy
+          };
         const sensorData = new SensorDataModel(mappedData);
         await sensorData.save();
 
+        const log = new ActivityLogModel({
+          ActionBy: jsonData.SubmitBy,
+          Action: "Stopped Drying",
+          Description: jsonData.SubmitBy + " Stopped drying with title " +"'"+jsonData.DryingTitle+"'"
+        });
+        await log.save(); 
+
         const PowerStates = {
-          HumidifierState: "OFF",
           PowerState: "OFF",
           OperationState: "OFF",
         };
@@ -420,11 +429,11 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+
 app.get('/downloadSensorDataPDF', async (req, res) => {
   try {
     // Get the ID parameter from the request
     const historyId = req.query.id;
-
     // Fetch data from SensorDataModel based on the provided history ID
     const sensorData = await SensorDataModel.findOne({ _id: historyId });
 
@@ -434,11 +443,24 @@ app.get('/downloadSensorDataPDF', async (req, res) => {
     }
 
     // Render EJS template with data
-    const templatePath = path.join(__dirname, 'views', 'pdfTemplate.ejs');
+    const templatePath = path.join(__dirname, 'views', 'onepdftemplate.ejs');
     const htmlContent = await ejs.renderFile(templatePath, { sensorData });
 
     // Options for the HTML to PDF conversion
-    const pdfOptions = { format: 'A4' };
+    const pdfOptions = {
+      format: 'A4',
+      timeout: 60000 // Set timeout to 60 seconds (adjust as needed)
+    };
+
+// Format the date and time as desired (for example, YYYY-MM-DD_HH-mm-ss)
+const formattedDate = currentDate.toLocaleString('en-US', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true
+}).replace(/[\/,: ]+/g, '-');
 
     // Convert HTML to PDF
     pdf.create(htmlContent, pdfOptions).toBuffer((err, buffer) => {
@@ -447,8 +469,57 @@ app.get('/downloadSensorDataPDF', async (req, res) => {
         return res.status(500).send('Internal Server Error');
       }
 
-      // Set the filename for download
-      res.setHeader('Content-disposition', 'attachment; filename=sensorData.pdf');
+      // Set the filename with the current date and time
+      res.setHeader('Content-disposition', `attachment; filename=${sensorData.DryingTitle}_${formattedDate}.pdf`);
+      // Set the content type for PDF
+      res.setHeader('Content-type', 'application/pdf');
+
+      // Send the PDF buffer as the response
+      res.send(buffer);
+    });
+  } catch (error) {
+    console.error('Error generating and sending sensor data PDF:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/downloadAllSensorDataPDF', async (req, res) => {
+  try {
+    // Fetch all data from SensorDataModel
+    const sensorDataList = await SensorDataModel.find({}).sort({ stopTime: -1 });
+
+    // Check if any data exists
+    if (!sensorDataList || sensorDataList.length === 0) {
+      return res.status(404).send('Data not found');
+    }
+
+    // Render EJS template with data
+    const templatePath = path.join(__dirname, 'views', 'pdfTemplate.ejs');
+    const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
+
+    // Options for the HTML to PDF conversion
+    const pdfOptions = {
+      format: 'A4',
+      timeout: 60000 // Set timeout to 60 seconds (adjust as needed)
+    };
+
+    // Convert HTML to PDF
+    pdf.create(htmlContent, pdfOptions).toBuffer((err, buffer) => {
+      if (err) {
+        console.error('Error generating PDF:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+
+      // Set the filename with the current date and time
+      const currentDate = new Date();
+      const formattedDate = currentDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).replace(/[\/,: ]+/g, '-');
+      res.setHeader('Content-disposition', `attachment; filename=AllDryingDataToDate_${formattedDate}.pdf`);
       // Set the content type for PDF
       res.setHeader('Content-type', 'application/pdf');
 
@@ -469,7 +540,7 @@ app.get('/', (req, res) => {
     res.render(__dirname + '/views/Login', { title: 'Login', error: error});
   }
 });
-function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, onGoingTimers= null, UserDetail, error = null, success = null) {
+function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = null, onGoingTimers= null, ActivityLogs=null, UserDetail, error = null, success = null) {
   res.render(`${__dirname}/views/index`, {
     title: tab.name,
     activeTab: tab.name.toLowerCase(),
@@ -481,6 +552,7 @@ function renderTab(tab, res, timerInfo = null, MyProfile = null, MyHistory = nul
     MyProfile: MyProfile,
     MyHistory: MyHistory,
     onGoingTimers: onGoingTimers,
+    ActivityLogs: ActivityLogs,
     error: error,
     success: success,
   });
@@ -500,19 +572,20 @@ tabs.forEach(tab => {
           const timerInfo = firstActiveTimer
             ? { ItemQuantity:firstActiveTimer.ItemQuantity, ItemName: firstActiveTimer.ItemName, id: firstActiveTimer._id, startTime: firstActiveTimer.startTime, endTime: firstActiveTimer.endTime, TimeMode: firstActiveTimer.TimeMode }
             : null;
-          renderTab(tab, res, timerInfo, null, null, null, req.session.user, error, success);
+          renderTab(tab, res, timerInfo, null, null, null, null, req.session.user, error, success);
         } else if (tab.name === "Profile" && req.session.user.Role === "Admin") {
           const Myprofile = await CreateProfilesModel.find().sort({ createdAt: -1 });
-          renderTab(tab, res, null, Myprofile, null, null, req.session.user, error, success);
+          renderTab(tab, res, null, Myprofile, null, null, null, req.session.user, error, success);
         } else if (tab.name === "Profile" && req.session.user.Role === "User") {
           req.session.error = "Profile Tab is for 'Admin Only'";
           res.redirect('/');
         } else if (tab.name === "History") {
           const onGoingTimers = await StartDryingModel.findOne({ Status: "On-going" });
-          const MyHistory = await SensorDataModel.find().sort({ stopTime: -1 });
-          renderTab(tab, res, null, null, MyHistory, onGoingTimers, req.session.user, error, success);
+          const MyHistory = await SensorDataModel.find().sort({ endTime: -1 });
+          const ActivityLogs = await ActivityLogModel.find().sort({ createdAt: -1 });
+          renderTab(tab, res, null, null, MyHistory, onGoingTimers, ActivityLogs, req.session.user, error, success);
         } else {
-          renderTab(tab, res, null, null, null, null, req.session.user, error, success);
+          renderTab(tab, res, null, null, null, null, null, req.session.user, error, success);
         }
       }
       else {
@@ -550,6 +623,13 @@ app.post('/StartDrying', async (req, res) => {
       const userDateInMillis = userDate - currentTime;
       mqttClient.publish('MYMQTT/MillisTopic', userDateInMillis.toString());
 
+      const log = new ActivityLogModel({
+        ActionBy: req.session.user.FullName,
+        Action: "Started Drying",
+        Description: "Started drying with title " +"'"+DryingTitle+"'"
+      });
+      await log.save();
+
         if (TimeMode === "NOTIMER") {
           const timer = new StartDryingModel({
             UserName: req.session.user.FullName,
@@ -582,7 +662,6 @@ app.post('/StartDrying', async (req, res) => {
         }
         const newTimerMQTT = await StartDryingModel.findOne({ Status: "On-going" }).exec();
         const PowerStates = {
-          HumidifierState: "ON",
           PowerState: req.body.powerSourceSelect,
           OperationState: req.body.modeSelect,
         };
@@ -652,8 +731,14 @@ app.post('/FinishDrying', async (req, res) => {
     await activeTimer.save();
     // console.log("Sensor data saved successfully!");
 
+    const log = new ActivityLogModel({
+      ActionBy: req.session.user.FullName,
+      Action: "Stopped Drying",
+      Description: "Stopped drying with title " +"'"+activeTimer.DryingTitle+"'"
+    });
+    await log.save();
+
     const PowerStates = {
-      HumidifierState: "OFF",
       PowerState: "OFF",
       OperationState: "OFF",
     };
@@ -738,6 +823,13 @@ app.post('/AddUser', upload.single('UserProfileImage'), async (req, res) => {
       ProfileImage: imagePath,
     });
     await userProfile.save();
+    const log = new ActivityLogModel({
+      ActionBy: req.session.user.FullName,
+      Action: "Added Profile",
+      Description: req.session.user.FullName + " added profile with studentID " +"'"+UnivStudID+"'"
+    }); 
+    await log.save();
+
     req.session.success = "Added Profile";
     res.redirect('/Profile');
   } catch (error) {
@@ -796,6 +888,12 @@ app.post('/EditUser/:id', upload.single('NewUserProfileImage'), async (req, res)
       user.ProfileImage = req.file.filename;
     }
     await user.save();
+    const log = new ActivityLogModel({
+      ActionBy: req.session.user.FullName,
+      Action: "Edited Profile",
+      Description: req.session.user.FullName + " edited profile with studentID " +"'"+user.UnivStudID+"'"
+    }); 
+    await log.save();
     req.session.success = "Edited Profile"
     res.redirect('/Profile');
   } catch (error) {
@@ -861,6 +959,12 @@ app.post('/DeleteUser/:id', async (req, res) => {
       return res.status(404).send('User not found');
     }
     await user.deleteOne();
+    const log = new ActivityLogModel({
+      ActionBy: req.session.user.FullName,
+      Action: "Deleted Profile",
+      Description: req.session.user.FullName + " deleted profile with studentID " +"'"+user.UnivStudID+"'"
+    });
+    await log.save(); 
     req.session.error = "Deleted Profile";
     res.redirect('/Profile');
   } catch (error) {
@@ -870,18 +974,14 @@ app.post('/DeleteUser/:id', async (req, res) => {
 });
 app.post('/SaveToMongo', async (req, res) => {
   try {
-    // console.log(req.body);
-      // Assuming datalog is a mongoose model, you can create an instance and save it
-      const datalog = new RelayStatesModel(req.body); // Replace YourMongoModel with your actual Mongoose model
+      const datalog = new ActivityLogModel(req.body); // Replace YourMongoModel with your actual Mongoose model
       await datalog.save();
-
       res.status(200).send('Data saved to MongoDB successfully');
   } catch (err) {
       console.error(err);
       res.status(500).send('Internal Server Error');
   }
 });
-
 cron.schedule('*/12 * * * *', async () => {
   try {
       const response = await axios.get('https://mqttdryer.onrender.com/');

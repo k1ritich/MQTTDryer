@@ -1,0 +1,61 @@
+.dataTables_wrapper .dataTables_filter {
+	display: none;
+}
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+    text-align: center;
+}
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_desc:before {
+    display: none;
+}
+
+
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: #495057;
+    border-color: #ced4da;
+}
+
+.btn-secondary:hover {
+    background-color: #e2e6ea;
+    color: #495057;
+    border-color: #cfd8dc;
+}
+
+.btn-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #f0f0f0; /* Optional: Add a focus style */
+}
+
+.btn-secondary:active {
+    background-color: #dcdfe2;
+    color: #495057;
+    border-color: #b8c2cc;
+}
+
+.search-input {
+    width: 150px;
+    float: left;
+    padding-right: 30px; /* Space for the icon */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.713 12.288a1 1 0 0 1-1.414 1.414l-2.147-2.146a5.5 5.5 0 1 1 1.414-1.414l2.147 2.146zM6.5 11a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center; /* Position the icon */
+    background-size: 16px; /* Size of the icon */
+}
+.entries-info {
+    float: right;
+}
+
+div.dataTables_wrapper div.dataTables_length label {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    text-align: left;
+    white-space: nowrap;
+    float: left;
+}

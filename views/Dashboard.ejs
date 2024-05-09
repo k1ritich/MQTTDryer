@@ -22,7 +22,7 @@
 				}
 			} else if (payload.topic === "MYMQTTDRYER/ESPState") {
 				const espState = payload.message;
-				document.getElementById('espState').innerText = `Dryer: ${espState}`;
+				document.getElementById('espState').innerText = `${espState}`;
 			}
 		});
 	</script>
@@ -130,17 +130,21 @@
 	<div class="order">
 		<div class="">
 			<h3>Temperature/Humidity 
-				<a 
-				style="z-index: 3000;"
-				tabindex="0" 
-				class="btn btn-outline-warning"  
-				role="button" 
-				data-bs-toggle="popover" 
-				data-bs-trigger="focus" 
-				data-bs-title="Legends" 
-				data-bs-content="U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2/-5 = Check (Sensor / Wiring / NoValue)"><i class="bi bi-question-circle"></i>
-				</a>
+				<button type="button" class="btn btn-warning" style="background-color:transparent; border-radius: 10px; width: 45px;border:1px solid rgb(255, 179, 0);" id="liveToastBtn">
+					<i style="color: rgb(255, 179, 0);" class="bi bi-question-circle"></i>
+				</button>
 			</h3>
+			<div class="toast-container position-fixed top-0 end-0 p-3"  tabindex="0" style="z-index: 3000;">
+				<div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
+					<div class="toast-header">
+					<small class="me-auto">Help?</small>
+					<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+					<div class="toast-body">
+						U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)
+					</div>
+				</div>
+			</div>
 		</div>
 		<table id="ProfileTable">
 			<thead>

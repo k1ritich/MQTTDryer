@@ -5,7 +5,9 @@
 <script>
 	const socket = io();
 	let activeSource = '';
-	let DHactiveSource = '';
+	let activeSourceColor = '';
+	let activeMode = '';
+	let isButtonDisabled = false;
 
 	socket.on('mqttMessage', (payload) => {
 			if (payload.topic === 'MYMQTTDRYER/TemperatureHumidityTopic') {
@@ -24,14 +26,12 @@
 			} else if (payload.topic === 'MYMQTTDRYER/StoreStateTopic') {
 				const messageObj = JSON.parse(payload.message);
 				activeSource = messageObj.PowerState;
-				DHactiveSource  = messageObj.HumidifierState;
 				if (messageObj.PowerState === 'BATTERY') {
 					document.getElementById("ACPower").value = "OFF";
 					document.getElementById("BattPower").value = messageObj.PowerState;
 					activeSource = messageObj.PowerState;
 					handleSourceMessage(messageObj.PowerState)
 				} else if (messageObj.PowerState === 'AC') {
-					console.log("AC")
 					document.getElementById("BattPower").value = "OFF";
 					document.getElementById("ACPower").value = messageObj.PowerState;
 					activeSource = messageObj.PowerState;
@@ -42,26 +42,15 @@
 					activeSource = messageObj.PowerState;
 					handleSourceMessage(messageObj.PowerState)
 				}
-				if (messageObj.HumidifierState === 'ON') {
-					DHactiveSource = messageObj.HumidifierState;
-					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
-				} else if (messageObj.HumidifierState === 'OFF') {
-					console.log("AC")
-					DHactiveSource = messageObj.HumidifierState;
-					DehumidifiierhandleSourceMessage(messageObj.HumidifierState)
-				}
 				if (messageObj.OperationState === 'AUTOMATIC') {
-					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
-					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "AUTOMATIC");
-					handleModeMessage(messageObj.OperationState)
+					activeMode = messageObj.OperationState;
+					handleModeMessage(activeMode)
 				} else if (messageObj.OperationState === 'MANUAL') {
-					console.log("AC")
-					document.getElementById("mode").value = "MANUAL";
-					handleModeMessage(messageObj.OperationState);
+					activeMode = messageObj.OperationState;
+					handleModeMessage(activeMode);
 				} else if (messageObj.OperationState === 'OFF') {
-					document.getElementById('acbutton').disabled = (document.getElementById('mode').value === "OFF");
-					document.getElementById('batterybutton').disabled = (document.getElementById('mode').value === "OFF");
-					handleModeMessage(messageObj.OperationState)
+					activeMode = messageObj.OperationState;
+					handleModeMessage(activeMode)
 				}
 			} else if (payload.topic === "MYMQTTDRYER/RecordPowerTopic") {
 				const messageObj = JSON.parse(payload.message); //BattPowerVoltage
@@ -75,58 +64,95 @@
 				document.getElementById('espState').innerText = `${espState}`;
 			}
 		})
-
-	function ToggleDehumidifier(source) {
-		console.log('<%= UserDetail.FullName %>');
-		const DryingID = 'Control Panel '+'<%= UserDetail.FullName %>';
-
-		const modeValue = document.getElementById('mode').value;
-		const topic = 'MYMQTTDRYER/SwitchDehumidifierTopic';
-		socket.emit('publishMessage', { topic, message: source });
-
-		// Save data to MongoDB via the server
-		saveToMongo({
-			DehumidifierRelayState: DHactiveSource,
-			RelayState: source,  // Replace with the actual value for RelayState
-			DryingMode: modeValue,
-			DryingID: DryingID
-		});
-	};
 	
-	function switchSource(source) {
-		console.log('<%= UserDetail.FullName %>');
-		const DryingID = 'Control Panel '+'<%= UserDetail.FullName %>';
+		function switchSource(source) {
+			const acbutton = document.getElementById('acbutton');
+			const batterybutton = document.getElementById('batterybutton');
+			const sourceValue = source;
+			if (!isButtonDisabled) {
+				console.log('<%= UserDetail.FullName %>');
+				const ActionBy = '<%= UserDetail.FullName %>';
+				const Action = 'Switch Source';
+				const Description = 'Switch source to ' + sourceValue;
+				console.log(Description);
 
-		const modeValue = document.getElementById('mode').value;
-		const topic = 'MYMQTTDRYER/SwitchPowerTopic';
-		socket.emit('publishMessage', { topic, message: source });
+				if (activeSource === sourceValue) {
+					console.log('Retain');
+				} else {
+					isButtonDisabled = true;
+					acbutton.disabled = true;
+					acbutton.style.opacity = 0.5;
+					batterybutton.disabled = true;
+					batterybutton.style.opacity = 0.5;
+					setTimeout(() => {
+						if (activeSource === sourceValue) {
+							saveToMongo({
+								Description: Description,
+								Action: Action,
+								ActionBy: ActionBy
+							});
+						} else {
+							console.log("Not Saved");
+						}
+						isButtonDisabled = false;
+						acbutton.disabled = false;
+						acbutton.style.opacity = 1;
+						batterybutton.disabled = false;
+						batterybutton.style.opacity = 1;
+					}, 5000);
+					const topic = 'MYMQTTDRYER/SwitchPowerTopic';
+					socket.emit('publishMessage', { topic, message: sourceValue });
+				}
+			}
+		};
+		function switchSourceMode() {
+			const modeSelect = document.getElementById('mode');
+			const acButton = document.getElementById('acbutton');
+			const batteryButton = document.getElementById('batterybutton');
 
-		// Save data to MongoDB via the server
-		saveToMongo({
-			DehumidifierRelayState: DHactiveSource,
-			RelayState: source,  // Replace with the actual value for RelayState
-			DryingMode: modeValue,
-			DryingID: DryingID
-		});
-	};
-	function switchSourceMode() {
-		// Ensure DryingID is properly assigned before calling this function
-		const DryingID ='Control Panel '+'<%= UserDetail.FullName %>';
+			console.log('<%= UserDetail.FullName %>');
+			const ActionBy = '<%= UserDetail.FullName %>';
+			const Action = 'Switch mode';
+			const Description = 'Switch mode to ' + modeSelect.value;
+			console.log(Description);
 
-		const modeValue = document.getElementById('mode').value;
-		document.getElementById('acbutton').disabled = (modeValue === "AUTOMATIC");
-		document.getElementById('batterybutton').disabled = (modeValue === "AUTOMATIC");
-		const topic = 'MYMQTTDRYER/SwitchSourceModeTopic';
-		socket.emit('publishMessage', { topic, message: modeValue });
+			const modeValue = modeSelect.value;
+			acButton.disabled = (modeValue === "AUTOMATIC" || modeValue === "OFF");
+			batteryButton.disabled = (modeValue === "AUTOMATIC" || modeValue === "OFF");
 
-		// Save data to MongoDB via the server
-		saveToMongo({
-			DehumidifierRelayState: activeSource,
-			RelayState: activeSource,
-			DryingMode: modeValue,
-			DryingID: DryingID
-		});
-	}
+			modeSelect.disabled = true;
+			modeSelect.style.opacity = 0.5;
+
+			acButton.disabled = true;
+			batterybutton.disabled = true;
+			batterybutton.style.opacity = 0.5;
+			acButton.style.opacity = 0.5;
+
+			if (activeMode === modeValue) {
+				console.log('Retain');
+			} else {
+				const topic = 'MYMQTTDRYER/SwitchSourceModeTopic';
+				socket.emit('publishMessage', { topic, message: modeValue });
+			}
+
+			setTimeout(() => {
+				if (activeMode === modeValue) {
+					saveToMongo({
+						Description: Description,
+						Action: Action,
+						ActionBy: ActionBy
+					});
+				} else {
+					console.log('Not Saved');
+				}
+				handleModeMessage(activeMode);
+				modeSelect.disabled = false; // Re-enable the select element after 5 seconds
+				modeSelect.style.opacity = 1; // Restore the opacity
+				batterybutton.style.opacity = 1;
+				acButton.style.opacity = 1;
+			}, 5000); // 5-second delay
+		}
+
 
 
 	function saveToMongo(data) {
@@ -154,26 +180,18 @@
 
 		// Update the background color of the AC and Battery buttons
 		if (source === 'AC') {
+			activeSourceColor = 'AC';
 			acli.style.backgroundColor = '#800000'; // Change this to your desired color
 			batli.style.backgroundColor = ''; // Reset battery button color
 		} else if (source === 'BATTERY') {
+			activeSourceColor = 'BATTERY';
 			batli.style.backgroundColor = '#800000'; // Change this to your desired color
 			acli.style.backgroundColor = ''; // Reset AC button color
 		} else if (source === 'OFF'){
+			activeSourceColor = 'OFF';
 			// Handle other cases or reset both buttons if needed
 			acli.style.backgroundColor = '';
 			batli.style.backgroundColor = '';
-		}
-	}
-
-	function DehumidifiierhandleSourceMessage(source) {
-
-		// Update the background color of the AC and Battery buttons
-		if (source === 'ON') {
-			dhli.style.backgroundColor = '#800000'; // Change this to your desired color
-		} else if (source === 'OFF'){
-			// Handle other cases or reset both buttons if needed
-			dhli.style.backgroundColor = '';
 		}
 	}
 
@@ -238,15 +256,6 @@
 			</span>
 		</li>
 		</button>
-
-		<button id="DehumidifierButton" style="border: 0px;" onclick="ToggleDehumidifier('Toggle')">
-			<li class="group-a" id="dhli">
-				<i class="bx bi-moisture"></i>
-				<span class="text">
-					<p class="text-a">Dehumidifier</p>
-				</span>
-			</li>
-		</button>
 			
 		<li class="group-a" style="height: 128px;">
 			<i class='bx bxs-cog'></i>
@@ -267,7 +276,7 @@
 	<div class="table-data">
 		<div class="todo" style="overflow: hidden;">
 			<div class="head">
-				<h3>Environment Data</h3>
+				<h3>Avg. TP and RH</h3>
 			</div>
 				<div class="formbold-input-group">
 					<label for="Humidity" class="formbold-form-label">Average Humidity (%)</label>
@@ -283,58 +292,45 @@
 		<!-- BATTERY POWER INFORMATION -->
 		<div class="todo" style="overflow: hidden;">
 			<div class="head">
-				<h3>Batt. Information</h3>
+				<h3>Power Information</h3>
 			</div>
 
 			<div class="formbold-input-group">
-				<label for="BattPower" class="formbold-form-label">Batt. Power Source</label>
-				<input type="text" value="N/A" name="BattPower" id="BattPower" class="input form-control" readonly>
+				<label for="" class="formbold-form-label">Power Source (BATTERY/AC)</label>
+				<div class="input-group">
+					<input type="text" value="N/A" name="BattPower" id="BattPower" style="border-right: 5px solid #800000;border-left: 0px;" class="input form-control" readonly>
+					<input type="text" value="N/A" name="ACPower" id="ACPower" style="border-left: 5px solid #800000;" class="input form-control" readonly>
 				</div>
+			</div>
 		
-				<div class="formbold-input-group">
-				<label for="BattPowerVoltage" class="formbold-form-label">Present Voltage Read</label>
-				<input type="text" value="N/A" name="BattPowerVoltage" id="BattPowerVoltage" class="input form-control" readonly>
-				</div>
-
-		</div>
-
-		<!-- AC POWER INFORMATION -->
-		<div class="todo" style="overflow: hidden;">
-			<div class="head">
-				<h3>AC Information</h3>
-			</div>
-
 			<div class="formbold-input-group">
-				<label for="ACPower" class="formbold-form-label">AC Power Source</label>
-				<input type="text" value="N/A" name="ACPower" id="ACPower" class="input form-control" readonly>
+				<label for="" class="formbold-form-label">Battery Voltage</label>
+				<input type="text" value="N/A" name="BattPowerVoltage" id="BattPowerVoltage" class="input form-control" readonly>
 			</div>
-
-			<!-- <div class="formbold-input-group">
-				<label for="ACPowerUsage" class="formbold-form-label">Power Usage Over Time (Initial/Current)</label>
-			</div>
-			<div class="input-group">
-				<input value="N/A" type="text" aria-label="First name" id="InitialACPowerUsage" class="input form-control text-center" readonly>
-				<input value="N/A" type="text" aria-label="First name" id="CurrentACPowerUsage" style="border: 0px;" class="input form-control text-center" readonly>
-			</div> -->
 		</div>
-	</div>
+	</div>	
 
 
 <div class="table-data">
 	<div class="order">
 		<div class="">
-			<h3>Temperature/Humidity 
-				<a 
-				style="z-index: 3000;"
-				tabindex="0" 
-				class="btn btn-outline-warning"  
-				role="button" 
-				data-bs-toggle="popover" 
-				data-bs-trigger="focus" 
-				data-bs-title="Legends" 
-				data-bs-content="U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)"><i class="bi bi-question-circle"></i>
-				</a>
+			<h3>
+				Temperature/Humidity
+				<button type="button" class="btn btn-warning" style="background-color:transparent; border-radius: 10px; width: 45px;border:1px solid rgb(255, 179, 0);" id="liveToastBtn">
+					<i style="color: rgb(255, 179, 0);" class="bi bi-question-circle"></i>
+				</button>
 			</h3>
+			<div class="toast-container position-fixed top-0 end-0 p-3"  tabindex="0" style="z-index: 3000;">
+				<div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
+					<div class="toast-header">
+					<small class="me-auto">Help?</small>
+					<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+					<div class="toast-body">
+						U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)
+					</div>
+				</div>
+			</div>
 		</div>
 		<table id="ProfileTable">
 			<thead>
