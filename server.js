@@ -871,7 +871,7 @@ app.post('/logout', (req, res) => {
     res.redirect('/');
   });
 });
-app.post('/EditUser/:id', upload.single('NewUserProfileImage'), async (req, res) => {
+app.post('/EditUser/:id', upload.single('UserProfileImage'), async (req, res) => {
   try {
     const userId = req.params.id;
     const { FullName, UnivStudID, EmailAddress, PhoneNumber, RoleSelect, UserProfileImage} = req.body;
