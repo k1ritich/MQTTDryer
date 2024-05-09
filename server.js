@@ -493,7 +493,7 @@ app.get('/downloadAllSensorDataPDF', async (req, res) => {
     }
 
     // Render EJS template with data
-    const templatePath = path.join(__dirname, 'views', 'pdfTemplate.ejs');
+    const templatePath = path.join(__dirname, 'views', 'pdftemplate.ejs');
     const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
 
     // Options for the HTML to PDF conversion
