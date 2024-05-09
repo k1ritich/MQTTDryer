@@ -1,20 +1,7 @@
 <!-- sub-navbar.ejs -->
 <div class="head-title">
     <div class="left">
-        <h1><%= title %>
-            <% if (activeTab === 'control-panel') { %>
-            <a 
-            style="z-index: 3000; margin-left: 10px;"
-            tabindex="0" 
-            class="btn btn-outline-warning"  
-            role="button" 
-            data-bs-toggle="popover" 
-            data-bs-trigger="focus" 
-            data-bs-title="Legends" 
-            data-bs-content="U/B . R/L= Upper/Bottom . Right/Left, TP/RH = Temprture/RelativeHumidity, -1/-2 = Check (Sensor / Wiring)"><i class="bi bi-question-circle"></i>
-            </a>
-            <% } %>
-        </h1>
+        <h1><%= title %></h1>
         <ul class="breadcrumb">
             <li>
                 <a class="a" href="#"><%= title %></a>
@@ -50,9 +37,9 @@
                 <span class="text">Add a User</span>
         </a>
     <% } else if (activeTab === 'history') { %>
-        <a href="#" class="btn-download">
+        <a href="/downloadAllSensorDataPDF" class="btn-download" id="">
             <i class='bx bxs-cloud-download'></i>
-            <span class="text">Download PDF</span>
+            <span class="text">Download All PDF</span>
         </a>
     <% } else if (activeTab === 'control-panel'){ %>
         <a href="#" style="margin-bottom: 10px;" class="btn-download" onclick="helloWorld()">

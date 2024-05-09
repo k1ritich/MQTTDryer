@@ -25,7 +25,7 @@ const TimerSchema = new Schema({
         required: false
     },
     ItemQuantity: {
-        type: Number,
+        type: String,
         required: false
     },
     TimeMode: {
@@ -44,26 +44,22 @@ const TimerSchema = new Schema({
         type: Date,
         required: false
     }
-}, { timestamps: false });
+}, { timestamps: true });
 
-const RelayState = new Schema ({
-    DryingID: {
+const ActivityLogsSchema = new Schema ({
+    ActionBy: {
         type: String,
         required: false
     },
-    DryingMode: {
+    Action: {
         type: String,
         required: false
     },
-    RelayState: {
+    Description: {
         type: String,
         required: false
     },
-    DehumidifierRelayState: {
-        type: String,
-        required: false
-    }
-}, { timestamps: false });
+}, { timestamps: true });
 
 const SensorDataSchema = new Schema({
     // User Data
@@ -96,7 +92,7 @@ const SensorDataSchema = new Schema({
       required: false,
     },
     ItemQuantity: {
-      type: Number,
+      type: String,
       required: false,
     },
     Status: {
@@ -281,7 +277,7 @@ const CreateProfile = new mongoose.Schema({
 
 const Models = {
     TimerDetails: mongoose.model('TimerDetails', TimerSchema), // Renamed to be consistent
-    RelayStates: mongoose.model('RelayStates', RelayState), // Renamed to be consistent
+    ActivityLog: mongoose.model('ActivityLogs', ActivityLogsSchema), // Renamed to be consistent
     CreateProfiles: mongoose.model('Profiles', CreateProfile),
     SensorData: mongoose.model('SensorDatas', SensorDataSchema),
     TemperatureLog: mongoose.model('TemperatureLogs', TemperatureLogSchema),

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensor Data PDF</title>
+  <style>
+    body {
+      width: 21cm;
+      height: 29.7cm;
+      margin: 1cm auto; /* Adjust margin as needed */
+      box-sizing: border-box;
+    }
+    h3 {
+     text-align: center;
+     line-height: 0.5;
+    }
+    h1 {
+      line-height: 1;
+      color: #104600;
+      font-family: 'Times New Roman', Times, serif;
+      margin: 7;
+      margin-bottom: 5px; /* Adjust this value as needed */
+    }
+    h2 {
+      line-height: 1;
+      color: #104600;
+      font-family: 'Times New Roman', Times, serif;
+      margin: 0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center; /* Center horizontally */
+      margin-bottom: 20px;
+      margin-top: 40px;
+    }
+    .header > * {
+      flex: 1;
+    }
+    .header > h1, .header > h2 {
+      flex-grow: 2;
+      text-align: center;
+      margin-left: 10px; /* Adjust this value as needed */
+    }
+    .header > h2 {
+      margin-left: 0; /* Remove margin-left */
+    }
+    .title {
+      margin-top: 20px;
+    }
+    .content {
+      margin-bottom: 60px; /* Adjust based on footer height */
+    }
+    .data_table {
+      margin: auto;
+      width: 80%;
+      border-collapse: collapse;
+    }
+    .data_table th, .data_table td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    .data_table th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>MARIANO MARCOS STATE UNIVERSITY</h1>
+      <h2>College of Engineering</h2>
+    </div>
+  </div>
+  <div class="title">
+    <h3>Ceramics Engineering</h3>
+    <h3>Sensor Data</h3>
+  </div>
+  <div class="content">
+    <p><strong>Name:</strong>  <%= sensorData.UserName %></p>
+    <p><strong>ID: </strong><%= sensorData.UserID %></p>
+    <p><strong>Drying Title: </strong><%= sensorData.DryingTitle %></p>
+    <p><strong>Item Name: </strong><%= sensorData.ItemName %></p>
+    <p><strong>Item Quantity: </strong><%= sensorData.ItemQuantity %></p>
+    <p><strong>Start Time: 
+    </strong>
+    <%= new Date(sensorData.startTime).toLocaleString('en-US', {
+      timeZone: 'Asia/Manila',
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      hourCycle: 'h23',
+    }).replace(' at ',', ') %>
+    </p>
+    <p><strong>End Time: 
+    </strong>
+    <%= new Date(sensorData.endTime).toLocaleString('en-US', {
+      timeZone: 'Asia/Manila',
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      hourCycle: 'h23',
+    }).replace(' at ',', ') %>
+    </p>
+    <p><strong>Stopped Time: 
+    </strong>
+    <%= new Date(sensorData.stopTime).toLocaleString('en-US', {
+      timeZone: 'Asia/Manila',
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      hourCycle: 'h23',
+    }).replace(' at ',', ') %>
+    </p>
+    <table class="data_table">
+      <tr>
+        <th>Sensor</th>
+        <th>Temperature</th>
+        <th>Humidity</th>
+      </tr>
+      <% for (let i = 0; i < sensorData.Temperature.length; i++) { %>
+      <tr>
+        <td>
+            <%if (i == 0 ) {%>
+              Upper Right Front Sensor
+            <%} else if (i == 1) {%>
+              Upper Right Center Sensor
+            <%} else if (i == 2) {%>
+              Upper Right Rear Sensor
+            <%} else if (i == 3) {%>
+              Bottom Right Front Sensor
+            <%} else if (i == 4) {%>
+              Bottom Right Center Sensor
+            <%} else if (i == 5) {%>
+              Bottom Right Rear Sensor
+            <%} else if (i == 6) {%>
+              Upper Left Rear Sensor
+            <%} else if (i == 7) {%>
+              Upper Left Rear Sensor
+            <%} else if (i == 8) {%>
+              Upper Left Rear Sensor
+            <%} else if (i == 9) {%>
+              Bottom Left Rear Sensor
+            <%} else if (i == 10) {%>
+              Bottom Left Rear Sensor
+            <%} else if (i == 11) {%>
+              Bottom Left Rear Sensor
+          <% } else if (i === 12) { %>
+            Ambient Temperature/Humidity
+          <% } else if (i === 13) { %>
+            Average Temperature/Humidity
+          <% } %>
+        </td>
+        <td><%= sensorData.Temperature[i] %></td>
+        <td><%= sensorData.Humidity[i] %></td>
+      </tr>
+      <% } %>
+    </table>
+  </div>
+</body>
+</html>
