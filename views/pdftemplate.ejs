@@ -10,7 +10,7 @@
     body {
       width: 21cm;
       height: 29.7cm;
-      margin: 1cm auto; /* Adjust margin as needed */
+      /* margin: 1cm auto; Adjust margin as needed */
       box-sizing: border-box;
     }
     h3 {
@@ -21,8 +21,7 @@
       line-height: 1;
       color: #104600;
       font-family: 'Times New Roman', Times, serif;
-      margin: 7;
-      margin-bottom: 5px; /* Adjust this value as needed */
+      margin-bottom: 10px; /* Adjust this value as needed */
     }
     h2 {
       line-height: 1;
@@ -34,8 +33,9 @@
       display: flex;
       align-items: center;
       justify-content: center; /* Center horizontally */
+      margin-left: 50px;
       margin-bottom: 20px;
-      margin-top: 40px;
+      margin-top: 0px;
     }
     .header > * {
       flex: 1;
@@ -46,16 +46,18 @@
       margin-left: 10px; /* Adjust this value as needed */
     }
     .header > h2 {
-      margin-left: 0; /* Remove margin-left */
+      margin-left: 50px; /* Remove margin-left */
     }
     .title {
-      margin-top: 20px;
+      margin-top: 0px;
     }
     .content {
       margin-bottom: 60px; /* Adjust based on footer height */
+      margin-left: 50px;
     }
     .data_table {
       margin: auto;
+      margin-left: 45px;
       width: 80%;
       border-collapse: collapse;
     }
@@ -81,12 +83,11 @@
       <h3>Sensor Data</h3>
     </div>
     <div class="content">
-      <p><strong>Name:</strong> <%= sensorData.UserName %></p>
-      <p><strong>ID: </strong><%= sensorData.UserID %></p>
+      <p><strong>Started By:</strong> <%= sensorData.UserName %></p>
       <p><strong>Drying Title: </strong><%= sensorData.DryingTitle %></p>
       <p><strong>Item Name: </strong><%= sensorData.ItemName %></p>
       <p><strong>Item Quantity: </strong><%= sensorData.ItemQuantity %></p>
-      <p><strong>Status: </strong><%= sensorData.Status %></p>
+      <p><strong>Stopped By:</strong>  <%= sensorData.SubmitBy %></p>
       <p><strong>Start Time: 
       </strong>
       <%= new Date(sensorData.startTime).toLocaleString('en-US', {
