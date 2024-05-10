@@ -438,7 +438,7 @@ app.get('/downloadSensorDataPDF', async (req, res) => {
     const htmlContent = await ejs.renderFile(templatePath, { sensorData });
 
     // Launch Puppeteer
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ executablePath: process.env.PUPETEER_VARIABLE });
     const page = await browser.newPage();
 
     // Set the content of the page to your HTML content
@@ -488,7 +488,7 @@ app.get('/downloadAllSensorDataPDF', async (req, res) => {
     const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
 
     // Launch Puppeteer
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ executablePath: process.env.PUPETEER_VARIABLE });
     const page = await browser.newPage();
 
     // Set the content of the page to your HTML content
