@@ -13,7 +13,7 @@ const ejs = require('ejs');
 const multer = require('multer');
 const cron = require('node-cron');
 const axios = require('axios');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 require('dotenv').config();
 
 app.use(session({
