@@ -15,6 +15,7 @@ const pdf = require('html-pdf');
 const cron = require('node-cron');
 const axios = require('axios');
 const currentDate = new Date();
+const puppeteer = require('puppeteer');
 require('dotenv').config();
 
 app.use(session({
@@ -78,10 +79,6 @@ mqttClient.on('connect', () => {
   const staticPaths = [
       path.join(__dirname, '.'),
       path.join(__dirname, 'uploads'),
-      path.join(__dirname, 'downloads'),
-      path.join(__dirname, 'downloads', 'CSV'),
-      path.join(__dirname, 'downloads', 'Excels'),
-      path.join(__dirname, 'downloads', 'PDF Sensor Data'),
       path.join(__dirname, 'Public', 'css'),
       path.join(__dirname, 'Public', 'js'),
       path.join(__dirname, 'Public', 'img'),
@@ -492,36 +489,35 @@ app.get('/downloadAllSensorDataPDF', async (req, res) => {
     const templatePath = path.join(__dirname, 'views', 'pdftemplate.ejs');
     const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
 
-    // Options for the HTML to PDF conversion
-    const pdfOptions = {
-      format: 'A4',
-      timeout: 60000 // Set timeout to 60 seconds (adjust as needed)
-    };
+    // Launch Puppeteer
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-    // Convert HTML to PDF
-    pdf.create(htmlContent, pdfOptions).toBuffer((err, buffer) => {
-      if (err) {
-        console.error('Error generating PDF:', err);
-        return res.status(500).send('Internal Server Error');
-      }
+    // Set the content of the page to your HTML content
+    await page.setContent(htmlContent);
 
-      // Set the filename with the current date and time
-      const currentDate = new Date();
-      const formattedDate = currentDate.toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      }).replace(/[\/,: ]+/g, '-');
-      res.setHeader('Content-disposition', `attachment; filename=AllDryingDataToDate_${formattedDate}.pdf`);
-      // Set the content type for PDF
-      res.setHeader('Content-type', 'application/pdf');
+    // Generate PDF
+    const pdfBuffer = await page.pdf({ format: 'A4' });
 
-      // Send the PDF buffer as the response
-      res.send(buffer);
-    });
+    // Close the browser
+    await browser.close();
+
+    // Set the filename with the current date and time
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).replace(/[\/,: ]+/g, '-');
+    res.setHeader('Content-disposition', `attachment; filename=AllDryingDataToDate_${formattedDate}.pdf`);
+    // Set the content type for PDF
+    res.setHeader('Content-type', 'application/pdf');
+
+    // Send the PDF buffer as the response
+    res.send(pdfBuffer);
   } catch (error) {
     console.error('Error generating and sending sensor data PDF:', error);
     res.status(500).send('Internal Server Error');
