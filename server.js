@@ -648,10 +648,18 @@ app.post('/StartDrying', async (req, res) => {
             console.error('Error publishing message:', err);
           } else {
             setTimeout(() => {
-              mqttClient.publish('MYMQTTDRYER/StoreStateTopic', JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+              mqttClient.publish('MYMQTTDRYER/SwitchSourceModeTopic',req.body.modeSelect, { qos: 2, retain: false }, (err) => {
                 if (err) {
                   console.error('Error publishing message:', err);
                 } else {
+                  // console.log('Message published successfully');
+                }
+              });      
+              mqttClient.publish('MYMQTTDRYER/SwitchPowerTopic',req.body.powerSourceSelect, { qos: 2, retain: false }, (err) => {
+                if (err) {
+                  console.error('Error publishing message:', err);
+                } else {
+                  // console.log('Message published successfully');
                 }
               });
             }, 1000);
