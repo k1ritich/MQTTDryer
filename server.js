@@ -421,94 +421,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-app.get('/downloadSensorDataPDF', async (req, res) => {
-  try {
-    const { id: historyId } = req.query;
-
-    if (!historyId) {
-      return res.status(400).send('History ID is required');
-    }
-
-    const sensorData = await SensorDataModel.findOne({ _id: historyId });
-
-    if (!sensorData) {
-      return res.status(404).send('Data not found');
-    }
-
-    const htmlContent = await renderPdfTemplate(sensorData);
-
-    const browser = await puppeteer.launch({ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdfBuffer = await page.pdf({ format: 'A4' });
-
-    await browser.close();
-
-    const formattedDate = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).replace(/[\/,: ]+/g, '-');
-    const fileName = `${sensorData.DryingTitle}_${formattedDate}.pdf`;
-
-    res.setHeader('Content-disposition', `attachment; filename=${fileName}`);
-    res.setHeader('Content-type', 'application/pdf');
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error('Error generating and sending sensor data PDF:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 async function renderPdfTemplate(sensorData) {
   const templatePath = path.join(__dirname, 'views', 'onepdftemplate.ejs');
   return await ejs.renderFile(templatePath, { sensorData });
 }
 
-app.get('/downloadAllSensorDataPDF', async (req, res) => {
-  try {
-    // Fetch all data from SensorDataModel
-    const sensorDataList = await SensorDataModel.find({}).sort({ stopTime: -1 });
-
-    // Check if any data exists
-    if (!sensorDataList || sensorDataList.length === 0) {
-      return res.status(404).send('Data not found');
-    }
-
-    // Render EJS template with data
-    const templatePath = path.join(__dirname, 'views', 'pdftemplate.ejs');
-    const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
-
-    // Launch Puppeteer
-    const browser = await puppeteer.launch({ executablePath: process.env.PUPETEER_VARIABLE });
-    const page = await browser.newPage();
-
-    // Set the content of the page to your HTML content
-    await page.setContent(htmlContent);
-
-    // Generate PDF
-    const pdfBuffer = await page.pdf({ format: 'A4' });
-
-    // Close the browser
-    await browser.close();
-
-    // Set the filename with the current date and time
-    const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).replace(/[\/,: ]+/g, '-');
-    res.setHeader('Content-disposition', `attachment; filename=AllDryingDataToDate_${formattedDate}.pdf`);
-    // Set the content type for PDF
-    res.setHeader('Content-type', 'application/pdf');
-
-    // Send the PDF buffer as the response
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error('Error generating and sending sensor data PDF:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
