@@ -451,8 +451,9 @@ app.get('/download-All-pdf', async (req, res) => {
     const browser = await puppeteer.launch({ 
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: '"C:\Program Files\Google\Chrome\Application\chrome.exe"' // Specify the correct path to Chrome executable
+      executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' // Correctly escaped backslashes
     });
+
     const page = await browser.newPage();
 
     // Set the HTML content of the page
