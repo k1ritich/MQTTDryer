@@ -18,6 +18,8 @@ const PDFDocument = require('pdfkit');
 const pug = require('pug');
 require('dotenv').config();
 
+
+
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -428,6 +430,8 @@ async function renderPdfTemplate(sensorData) {
   const templatePath = path.join(__dirname, 'views', 'onepdftemplate.ejs');
   return await ejs.renderFile(templatePath, { sensorData });
 }
+
+process.env.PUPPETEER_DOWNLOAD_PATH = '/path/to/cache/directory';
 //Download All Data
 app.get('/download-all-pdf', async (req, res) => {
   try {
@@ -435,9 +439,13 @@ app.get('/download-all-pdf', async (req, res) => {
     const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Launch Puppeteer without specifying the executable path
+    // Use double backslashes to escape the path separators
+    const executablePath = 'C:\\Users\\donan\\.cache\\puppeteer\\chrome\\win64-125.0.6422.78\\chrome-win64\\chrome.exe';
+
+    // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: executablePath
     });
 
     const page = await browser.newPage();
