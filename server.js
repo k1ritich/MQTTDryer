@@ -431,7 +431,6 @@ async function renderPdfTemplate(sensorData) {
   return await ejs.renderFile(templatePath, { sensorData });
 }
 
-process.env.PUPPETEER_DOWNLOAD_PATH = '/path/to/cache/directory';
 //Download All Data
 app.get('/download-all-pdf', async (req, res) => {
   try {
@@ -439,14 +438,13 @@ app.get('/download-all-pdf', async (req, res) => {
     const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-
-
     // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
-      headless:false,
+      headless: false,
+      executablePath: 'C://Program Files//Google//Chrome//Application//chrome.exe',
       args: ["--no-sandbox"]
-  });
-
+    });
+    
     const page = await browser.newPage();
 
     // Increase the timeout value and wait for the page to load
