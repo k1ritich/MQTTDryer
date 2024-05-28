@@ -440,9 +440,8 @@ app.get('/download-all-pdf', async (req, res) => {
 
     // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
-      headless: false,
-      executablePath: 'C://Program Files//Google//Chrome//Application//chrome.exe',
-      args: ["--no-sandbox"]
+      headless: true, // Change to headless mode
+      args: ["--no-sandbox", "--disable-setuid-sandbox"] // Disable sandbox
     });
     
     const page = await browser.newPage();
