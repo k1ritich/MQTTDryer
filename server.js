@@ -16,7 +16,7 @@ const axios = require('axios');
 const puppeteer = require('puppeteer');
 const PDFDocument = require('pdfkit');
 const pug = require('pug');
-const pdf = require('html-pdf');
+const { convert } = require('html-to-text');
 require('dotenv').config();
 
 app.use(session({
@@ -436,29 +436,34 @@ app.get('/download-all-pdf', async (req, res) => {
     // Render the Pug template to HTML
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Options for the PDF
-    const options = {
-      format: 'A4',
-      orientation: 'portrait',
-      border: '10mm'
-    };
+    // Convert HTML to plain text
+    const text = convert(html, {
+      wordwrap: 130
+    });
 
-    // Create PDF from HTML
-    pdf.create(html, options).toBuffer((err, buffer) => {
-      if (err) {
-        console.error('Error generating PDF:', err);
-        return res.status(500).send('Internal Server Error');
-      }
-
+    // Create a new PDF document
+    const doc = new PDFDocument();
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfData = Buffer.concat(buffers);
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
-      res.send(buffer);
+      res.send(pdfData);
     });
+
+    // Add the text content to the PDF document
+    doc.text(text);
+
+    // Finalize the PDF and end the document
+    doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
     res.status(500).send('Internal Server Error');
   }
 });
+
+
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
