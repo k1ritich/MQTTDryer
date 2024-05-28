@@ -435,11 +435,14 @@ app.get('/download-all-pdf', async (req, res) => {
       const pug = require('pug');
       const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-      // Launch Puppeteer with options to handle environment-specific issues
-      const browser = await puppeteer.launch({
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-          executablePath: 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe' // Change this to the actual path of your Chrome or Chromium executable
-      });
+      // Use double backslashes to escape the path separators
+    const executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+
+    // Launch Puppeteer with options to handle environment-specific issues
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: executablePath
+    });
       const page = await browser.newPage();
 
       // Increase the timeout value and wait for the page to load
