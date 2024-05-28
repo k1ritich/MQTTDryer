@@ -431,19 +431,25 @@ async function renderPdfTemplate(sensorData) {
 }
 
 //Download All Data
-//Download All Data
 app.get('/download-all-pdf', async (req, res) => {
   try {
-    const pug = require('pug');
+    // Render the Pug template to HTML
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    const html_to_pdf = require('html-pdf');
-    html_to_pdf.create(html).toBuffer((err, buffer) => {
+    // Options for the PDF
+    const options = {
+      format: 'A4',
+      orientation: 'portrait',
+      border: '10mm'
+    };
+
+    // Create PDF from HTML
+    pdf.create(html, options).toBuffer((err, buffer) => {
       if (err) {
         console.error('Error generating PDF:', err);
-        res.status(500).send('Internal Server Error');
-        return;
+        return res.status(500).send('Internal Server Error');
       }
+
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
       res.send(buffer);
@@ -453,7 +459,6 @@ app.get('/download-all-pdf', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
