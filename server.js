@@ -449,13 +449,6 @@ app.get('/download-all-pdf', async (req, res) => {
 
       await browser.close();
 
-    // Launch a Puppeteer browser instance with additional flags
-    const browser = await puppeteer.launch({ 
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: process.env.PUPETEER_VARIABLE
-    });
-
       // Set response headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
