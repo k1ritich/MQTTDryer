@@ -13,7 +13,7 @@ const ejs = require('ejs');
 const multer = require('multer');
 const cron = require('node-cron');
 const axios = require('axios');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const PDFDocument = require('pdfkit');
 const pug = require('pug');
 require('dotenv').config();
@@ -438,10 +438,13 @@ app.get('/download-all-pdf', async (req, res) => {
     const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
+    // Specify the path to Chrome executable
+    const chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+
     // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
       headless: true, // Change to headless mode
-      executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', // Specify the path to Chrome executable
+      executablePath: chromePath, // Specify the path to Chrome executable
       args: ["--no-sandbox", "--disable-setuid-sandbox"] // Disable sandbox
     });
     
@@ -463,7 +466,6 @@ app.get('/download-all-pdf', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 app.get('/', (req, res) => {
   if (req.session.user) {
