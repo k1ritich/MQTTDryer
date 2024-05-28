@@ -1,17 +1,43 @@
-block content 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download PDF</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css" integrity="sha512-MzRYI9BF/9sTgGnEqlxRd4+HgA+sh7l/PYdSRUJ2sT9v8e0vXJkl5gQ/uhHArMx3tL8b2bgtB2bc7TWQcc1Jcw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-</head>
-<body>
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title Drying Records
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css', integrity='sha512-MzRYI9BF/9sTgGnEqlxRd4+HgA+sh7l/PYdSRUJ2sT9v8e0vXJkl5gQ/uhHArMx3tL8b2bgtB2bc7TWQcc1Jcw==', crossorigin='anonymous', referrerpolicy='no-referrer')
+    style.
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 8px;
+        border: 1px solid #dddddd;
+        text-align: left;
+      }
+  body
     h1 MARIANO MARCOS STATE UNIVERSITY
     h2 College of Engineering
     h3 Ceramics Engineering
     h3 Drying Records
-</body>
-</html>
+
+    table
+      thead
+        tr
+          th User Name
+          th Drying Title
+          th Item Name
+          th Item Quantity
+          th Start Time
+          th End Time
+          th Time Mode
+      tbody
+        each record in records
+          tr
+            td= record.UserName
+            td= record.DryingTitle
+            td= record.ItemName
+            td= record.ItemQuantity
+            td= record.startTime
+            td= record.endTime
+            td= record.TimeMode

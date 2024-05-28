@@ -433,27 +433,42 @@ async function renderPdfTemplate(sensorData) {
 //Download All Data
 app.get('/download-all-pdf', async (req, res) => {
   try {
-    // Render the Pug template to HTML
-    const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
+    // Fetch specific fields from all records data from the database
+    const records = await SensorDataModel.find({}, { UserName: 1, DryingTitle: 1, ItemName: 1, ItemQuantity: 1, startTime: 1, endTime: 1, TimeMode: 1, _id: 0 });
 
-    // Convert HTML to plain text
-    const text = convert(html, {
-      wordwrap: 130
-    });
-
-    // Create a new PDF document
-    const doc = new PDFDocument();
+    // Create a new PDF document with landscape orientation and adjusted margins
+    const doc = new PDFDocument({ size: 'letter', layout: 'landscape', margin: 30 });
     let buffers = [];
     doc.on('data', buffers.push.bind(buffers));
     doc.on('end', () => {
       const pdfData = Buffer.concat(buffers);
+      const currentDate = new Date().toISOString().replace(/:/g, "-"); // Replace colons with dashes for filename compatibility
+      const filename = `Drying Records ${currentDate}.pdf`;
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       res.send(pdfData);
     });
 
-    // Add the text content to the PDF document
-    doc.text(text);
+    // Add the text content to the PDF document with styles
+    doc.font('Helvetica-Bold').fontSize(16).text('MARIANO MARCOS STATE UNIVERSITY', { align: 'center' }).moveDown();
+    doc.font('Helvetica').fontSize(12).text('College of Engineering', { align: 'center' }).moveDown();
+    doc.font('Helvetica').fontSize(12).text('Ceramics Engineering', { align: 'center' }).moveDown();
+    doc.font('Helvetica').fontSize(12).text('Drying Records', { align: 'center' }).moveDown();
+
+    // Move to a new position before drawing the table
+    doc.moveDown();
+
+    // Draw table with records
+    const table = {
+      headers: ['User Name', 'Drying Title', 'Item Name', 'Item Quantity', 'Start Time', 'End Time', 'Time Mode'],
+      rows: records.map(record => [record.UserName, record.DryingTitle, record.ItemName, record.ItemQuantity, record.startTime, record.endTime, record.TimeMode]),
+      rowSpacing: 10,
+      x: 30,
+      y: doc.y + 20,
+      columnWidths: [100, 100, 100, 100, 100, 100, 100]
+    };
+
+    drawTable(doc, table);
 
     // Finalize the PDF and end the document
     doc.end();
@@ -463,6 +478,33 @@ app.get('/download-all-pdf', async (req, res) => {
   }
 });
 
+// Function to draw a table
+function drawTable(doc, table) {
+  let startY = table.y;
+
+  // Draw table headers
+  table.headers.forEach((header, i) => {
+    doc.rect(table.x + i * table.columnWidths[i], startY, table.columnWidths[i], 20)
+      .stroke()
+      .font('Helvetica-Bold')
+      .fontSize(12)
+      .text(header, table.x + i * table.columnWidths[i] + 5, startY + 5, { width: table.columnWidths[i] - 10, align: 'left' });
+  });
+
+  startY += 20;
+
+  // Draw table rows
+  table.rows.forEach(row => {
+    row.forEach((cell, i) => {
+      doc.rect(table.x + i * table.columnWidths[i], startY, table.columnWidths[i], 20)
+        .stroke()
+        .font('Helvetica')
+        .fontSize(12)
+        .text(cell.toString(), table.x + i * table.columnWidths[i] + 5, startY + 5, { width: table.columnWidths[i] - 10, align: 'left' });
+    });
+    startY += 20;
+  });
+}
 
 app.get('/', (req, res) => {
   if (req.session.user) {
