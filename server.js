@@ -439,14 +439,13 @@ app.get('/download-all-pdf', async (req, res) => {
     const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Use double backslashes to escape the path separators
-    const executablePath = 'C:\\Users\\donan\\.cache\\puppeteer\\chrome\\win64-125.0.6422.78\\chrome-win64\\chrome.exe';
+
 
     // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: executablePath
-    });
+      headless:false,
+      args: ["--no-sandbox"]
+  });
 
     const page = await browser.newPage();
 
