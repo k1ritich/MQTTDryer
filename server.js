@@ -435,22 +435,17 @@ async function renderPdfTemplate(sensorData) {
 app.get('/download-all-pdf', async (req, res) => {
   try {
     // Render the Pug template to HTML
-    const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Specify the path to Chrome executable
-    const chromePath = 'C://Program Files//Google//Chrome//Application//chrome.exe';
-
-    // Launch Puppeteer with options to handle environment-specific issues
+    // Launch Puppeteer with the built-in Chromium
     const browser = await puppeteer.launch({
-      headless: true, // Change to headless mode
-      executablePath: chromePath, // Specify the path to Chrome executable
-      args: ["--no-sandbox", "--disable-setuid-sandbox"] // Disable sandbox
+      headless: true, // Run in headless mode
+      args: ["--no-sandbox", "--disable-setuid-sandbox"] // Recommended for running in some environments like Docker
     });
     
     const page = await browser.newPage();
 
-    // Increase the timeout value and wait for the page to load
+    // Set content with a longer timeout and wait until network is idle
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
 
     // Create the PDF
@@ -466,7 +461,6 @@ app.get('/download-all-pdf', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
