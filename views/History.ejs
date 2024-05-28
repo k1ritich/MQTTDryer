@@ -136,7 +136,7 @@
 						</td>
 						<td class="text-center"><span id="Duration<%= index %>"></span></td>
 						<td class="text-center">
-							<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger" id="downloadPDFButton<%= history._id %>">Download</button>
+							<button style="background-color: #800000; margin-left: 30px; margin-right: 10px;" class="btn btn-danger download-pdf-button" data-id="<%= history._id %>">Download</button>
 						</td>
 					</tr>
 				<% }); %>
@@ -460,4 +460,15 @@
 		});
 	  <% }); %>
 	});
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.download-pdf-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                window.location.href = `/pdf/download/${id}`;
+            });
+        });
+    });
 </script>
