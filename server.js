@@ -439,7 +439,7 @@ app.get('/download-all-pdf', async (req, res) => {
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
     // Specify the path to Chrome executable
-    const chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+    const chromePath = 'C://Program Files//Google//Chrome//Application//chrome.exe';
 
     // Launch Puppeteer with options to handle environment-specific issues
     const browser = await puppeteer.launch({
