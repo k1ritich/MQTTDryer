@@ -14,6 +14,8 @@ const multer = require('multer');
 const cron = require('node-cron');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
+const PDFDocument = require('pdfkit');
+const pug = require('pug');
 require('dotenv').config();
 
 app.use(session({
@@ -122,7 +124,8 @@ Promise.all(subscribePromises)
   app.use(bodyParser.urlencoded({ extended: true }));
   // app.use(morgan('dev'));
   app.use(express.json());
-  app.set('view engine', 'ejs');
+  app.set('view engine', 'ejs', 'pug');
+  
 
   app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -421,94 +424,62 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-app.get('/downloadSensorDataPDF', async (req, res) => {
-  try {
-    const { id: historyId } = req.query;
-
-    if (!historyId) {
-      return res.status(400).send('History ID is required');
-    }
-
-    const sensorData = await SensorDataModel.findOne({ _id: historyId });
-
-    if (!sensorData) {
-      return res.status(404).send('Data not found');
-    }
-
-    const htmlContent = await renderPdfTemplate(sensorData);
-
-    const browser = await puppeteer.launch({ executablePath: process.env.PUPPETEER_EXECUTABLE_PATH });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdfBuffer = await page.pdf({ format: 'A4' });
-
-    await browser.close();
-
-    const formattedDate = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).replace(/[\/,: ]+/g, '-');
-    const fileName = `${sensorData.DryingTitle}_${formattedDate}.pdf`;
-
-    res.setHeader('Content-disposition', `attachment; filename=${fileName}`);
-    res.setHeader('Content-type', 'application/pdf');
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error('Error generating and sending sensor data PDF:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 async function renderPdfTemplate(sensorData) {
   const templatePath = path.join(__dirname, 'views', 'onepdftemplate.ejs');
   return await ejs.renderFile(templatePath, { sensorData });
 }
-
-app.get('/downloadAllSensorDataPDF', async (req, res) => {
+//Download All Data
+app.get('/download-All-pdf', async (req, res) => {
   try {
-    // Fetch all data from SensorDataModel
-    const sensorDataList = await SensorDataModel.find({}).sort({ stopTime: -1 });
+    // Fetch limited data for performance optimization
+    const data = await SensorDataModel.find()
+      .select('UserName DryingTitle ItemName ItemQuantity startTime endTime stopTime TimeMode')
+      .limit(100) // Start with a small limit for testing
+      .exec();
 
-    // Check if any data exists
-    if (!sensorDataList || sensorDataList.length === 0) {
-      return res.status(404).send('Data not found');
-    }
+    // Generate the current date in the desired format
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
 
-    // Render EJS template with data
-    const templatePath = path.join(__dirname, 'views', 'pdftemplate.ejs');
-    const htmlContent = await ejs.renderFile(templatePath, { sensorDataList });
+    // Render the Pug template to HTML
+    const html = pug.renderFile(path.join(__dirname, 'views', 'document.pug'), { records: data, currentDate });
+    console.log('Content:', html); // Debugging line
 
-    // Launch Puppeteer
-    const browser = await puppeteer.launch({ executablePath: process.env.PUPETEER_VARIABLE });
+    // Launch a Puppeteer browser instance with additional flags
+    const browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
 
-    // Set the content of the page to your HTML content
-    await page.setContent(htmlContent);
+    // Set the HTML content of the page
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 120000 });
 
-    // Generate PDF
-    const pdfBuffer = await page.pdf({ format: 'A4' });
+    // Generate the PDF from the page content in landscape layout
+    const pdfBuffer = await page.pdf({ format: 'A4', landscape: true });
 
-    // Close the browser
+    // Close the browser instance
     await browser.close();
 
-    // Set the filename with the current date and time
-    const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).replace(/[\/,: ]+/g, '-');
-    res.setHeader('Content-disposition', `attachment; filename=AllDryingDataToDate_${formattedDate}.pdf`);
-    // Set the content type for PDF
-    res.setHeader('Content-type', 'application/pdf');
+    // Set headers for the PDF file
+    const now = new Date();
+    const dateString = now.toISOString().replace(/[:\-T]/g, '').slice(0, 14); // Format YYYYMMDDHHMMSS
+    const filename = `Recent_Activities_${dateString}.pdf`;
 
-    // Send the PDF buffer as the response
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    // Send the generated PDF
     res.send(pdfBuffer);
-  } catch (error) {
-    console.error('Error generating and sending sensor data PDF:', error);
-    res.status(500).send('Internal Server Error');
+  } catch (err) {
+    console.error('Error generating PDF:', err); // Log the error for debugging
+    res.status(500).send('Error generating PDF');
   }
 });
+
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
@@ -730,25 +701,15 @@ app.post('/FinishDrying', async (req, res) => {
       PowerState: "OFF",
       OperationState: "OFF",
     };
-    setTimeout(() => {
-      mqttClient.publish('MYMQTTDRYER/SwitchSourceModeTopic', "OFF", { qos: 2, retain: false }, (err) => {
+    for (i=0; i < 10; i++) {
+      mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
         if (err) {
           console.error('Error publishing message:', err);
         } else {
           // console.log('Message published successfully');
-          setTimeout(() => {
-            mqttClient.publish('MYMQTTDRYER/SwitchPowerTopic', "OFF", { qos: 2, retain: false }, (err) => {
-              if (err) {
-                console.error('Error publishing message:', err);
-              } else {
-                // console.log('Message published successfully');
-              }
-            });
-          }, 1000); // Additional 1 second delay before publishing the second message
         }
       });
-    }, 1000); // Initial 1 second delay before publishing the first subsequent message
-
+    }
     mqttClient.publish('MYMQTTDRYER/PlayingTime',"NOTIMER", { qos: 2, retain: true }, (err) => {
       if (err) {
         console.error('Error publishing message:', err);
