@@ -1,71 +1,15 @@
-block content
-  style.
-    /* Add margin to the container */
-    .container {
-      margin-left: 20px; /* Adjust margin as needed */
-      margin-right: 20px; /* Adjust margin as needed */
-      margin-top: 20px; /* Adjust margin as needed */
-      margin-bottom: 20px; /* Adjust margin as needed */
-    }
-
-    h1, h2, h3 {
-      margin: 0; /* Ensures there is no margin between elements */
-    }
-    h3 {
-      text-align: center;
-    }
-    p.date {
-      text-align: center;
-      margin-top: 0; /* Ensures the date is close to the headers */
-    }
-    table {
-      border-collapse: collapse; /* Collapse border spacing */
-      width: 100%; /* Set table width to 100% */
-    }
-    th, td {
-      border: 1px solid black; /* Add border to table cells */
-      padding: 8px; /* Add padding to cells */
-      text-align: left; /* Align text to left */
-    }
-    .header {
-      display: flex; /* Use flexbox to align items */
-      align-items: center; /* Align items vertically */
-    }
-
-    @page {
-      margin: 15mm 5mm 20mm 5mm; /* Define margins for printing */
-    }
-
-  .container 
-    .header
-      h1 MARIANO MARCOS STATE UNIVERSITY
-
-    h2 College of Engineering
-    h3 Ceramics Engineering
-    h3 Drying Records
-    p.date(style="text-align: center;")= currentDate
-
-    table
-      thead
-        tr
-          th #
-          th Username
-          th Drying Title
-          th Item Name
-          th Item Quantity 
-          th Started Time
-          th Ended Time
-          th Stopped Time
-          th Timer Mode
-      tbody
-        each record, index in records
-          tr
-            td= index + 1
-            td= record.UserName
-            td= record.DryingTitle
-            td= record.ItemName
-            td= record.ItemQuantity
-            td= new Date(record.startTime).toLocaleString()
-            td= new Date(record.endTime).toLocaleString()
-            td= new Date(record.stopTime).toLocaleString()
-            td= record.TimeMode
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download PDF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css" integrity="sha512-MzRYI9BF/9sTgGnEqlxRd4+HgA+sh7l/PYdSRUJ2sT9v8e0vXJkl5gQ/uhHArMx3tL8b2bgtB2bc7TWQcc1Jcw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <a href="/download-all-pdf" class="btn-download">
+        <i class='bx bxs-cloud-download'></i>
+        <span class="text">Download All PDF</span>
+    </a>
+</body>
+</html>
