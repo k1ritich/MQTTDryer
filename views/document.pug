@@ -1,43 +1,59 @@
-doctype html
-html
-  head
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    title Drying Records
-    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css', integrity='sha512-MzRYI9BF/9sTgGnEqlxRd4+HgA+sh7l/PYdSRUJ2sT9v8e0vXJkl5gQ/uhHArMx3tL8b2bgtB2bc7TWQcc1Jcw==', crossorigin='anonymous', referrerpolicy='no-referrer')
-    style.
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th, td {
-        padding: 8px;
-        border: 1px solid #dddddd;
-        text-align: left;
-      }
-  body
-    h1 MARIANO MARCOS STATE UNIVERSITY
-    h2 College of Engineering
-    h3 Ceramics Engineering
-    h3 Drying Records
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drying Records</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.1/css/boxicons.min.css" integrity="sha512-MzRYI9BF/9sTgGnEqlxRd4+HgA+sh7l/PYdSRUJ2sT9v8e0vXJkl5gQ/uhHArMx3tL8b2bgtB2bc7TWQcc1Jcw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* Ensure fixed table layout */
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #dddddd;
+            text-align: left;
+            word-wrap: break-word; /* Ensure words wrap within cells */
+            overflow: hidden;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>MARIANO MARCOS STATE UNIVERSITY</h1>
+    <h2>College of Engineering</h2>
+    <h3>Ceramics Engineering</h3>
+    <h3>Drying Records</h3>
 
-    table
-      thead
-        tr
-          th User Name
-          th Drying Title
-          th Item Name
-          th Item Quantity
-          th Start Time
-          th End Time
-          th Time Mode
-      tbody
-        each record in records
-          tr
-            td= record.UserName
-            td= record.DryingTitle
-            td= record.ItemName
-            td= record.ItemQuantity
-            td= record.startTime
-            td= record.endTime
-            td= record.TimeMode
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 14%;">User Name</th>
+                <th style="width: 14%;">Drying Title</th>
+                <th style="width: 14%;">Item Name</th>
+                <th style="width: 10%;">Item Quantity</th>
+                <th style="width: 16%;">Start Time</th>
+                <th style="width: 16%;">End Time</th>
+                <th style="width: 16%;">Time Mode</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% records.forEach(record => { %>
+            <tr>
+                <td><%= record.UserName %></td>
+                <td><%= record.DryingTitle %></td>
+                <td><%= record.ItemName %></td>
+                <td><%= record.ItemQuantity %></td>
+                <td><%= record.startTime %></td>
+                <td><%= record.endTime %></td>
+                <td><%= record.TimeMode %></td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</body>
+</html>

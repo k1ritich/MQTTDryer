@@ -462,7 +462,6 @@ app.get('/download-all-pdf', async (req, res) => {
     const table = {
       headers: ['User Name', 'Drying Title', 'Item Name', 'Item Quantity', 'Start Time', 'End Time', 'Time Mode'],
       rows: records.map(record => [record.UserName, record.DryingTitle, record.ItemName, record.ItemQuantity, record.startTime, record.endTime, record.TimeMode]),
-      rowSpacing: 10,
       x: 30,
       y: doc.y + 20,
       columnWidths: [100, 100, 100, 100, 100, 100, 100]
@@ -494,16 +493,39 @@ function drawTable(doc, table) {
   startY += 20;
 
   // Draw table rows
-  table.rows.forEach(row => {
+  let remainingHeight = doc.page.height - startY - 30; // Consider the remaining height on the page
+  let rowIndex = 0;
+
+  while (rowIndex < table.rows.length && remainingHeight > 0) {
+    let row = table.rows[rowIndex];
+    let maxCellHeight = 0;
+
     row.forEach((cell, i) => {
-      doc.rect(table.x + i * table.columnWidths[i], startY, table.columnWidths[i], 20)
-        .stroke()
-        .font('Helvetica')
-        .fontSize(12)
-        .text(cell.toString(), table.x + i * table.columnWidths[i] + 5, startY + 5, { width: table.columnWidths[i] - 10, align: 'left' });
+      const cellTextHeight = doc.fontSize(12).heightOfString(cell.toString(), { width: table.columnWidths[i] - 10 });
+      maxCellHeight = Math.max(maxCellHeight, cellTextHeight);
     });
-    startY += 20;
-  });
+
+    // Determine the height for the row
+    const rowHeight = Math.max(maxCellHeight + 10, 20);
+
+    if (startY + rowHeight < doc.page.height - 30) {
+      row.forEach((cell, i) => {
+        doc.rect(table.x + i * table.columnWidths[i], startY, table.columnWidths[i], rowHeight)
+          .stroke()
+          .font('Helvetica')
+          .fontSize(12)
+          .text(cell.toString(), table.x + i * table.columnWidths[i] + 5, startY + 5, { width: table.columnWidths[i] - 10, align: 'left' });
+      });
+
+      startY += rowHeight;
+      remainingHeight -= rowHeight;
+      rowIndex++;
+    } else {
+      doc.addPage({ size: 'letter', layout: 'landscape' });
+      startY = 30;
+      remainingHeight = doc.page.height - startY - 30;
+    }
+  }
 }
 
 app.get('/', (req, res) => {
