@@ -437,13 +437,12 @@ app.get('/download-all-pdf', async (req, res) => {
     // Render the Pug template to HTML
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Launch Puppeteer with the built-in Chromium
+    // Launch Puppeteer with the bundled Chromium
     const browser = await puppeteer.launch({
-      headless: true, // Run in headless mode
-      args: ["--no-sandbox", "--disable-setuid-sandbox"] // Recommended for running in some environments like Docker
+      executablePath: 'C:\\Users\\donan\\OneDrive\\Desktop\\chrome-win\\chrome-win\\chrome.exe', // Path to your Chromium executable
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
-    
-    const page = await browser.newPage();
 
     // Set content with a longer timeout and wait until network is idle
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
@@ -461,6 +460,7 @@ app.get('/download-all-pdf', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
