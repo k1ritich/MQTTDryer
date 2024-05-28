@@ -431,35 +431,31 @@ async function renderPdfTemplate(sensorData) {
 //Download All Data
 app.get('/download-all-pdf', async (req, res) => {
   try {
-      // Render the Pug template to HTML
-      const pug = require('pug');
-      const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
+    // Render the Pug template to HTML
+    const pug = require('pug');
+    const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-      // Use double backslashes to escape the path separators
-    const executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-
-    // Launch Puppeteer with options to handle environment-specific issues
+    // Launch Puppeteer without specifying the executable path
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: executablePath
     });
-      const page = await browser.newPage();
 
-      // Increase the timeout value and wait for the page to load
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
+    const page = await browser.newPage();
 
-      // Create the PDF
-      const pdf = await page.pdf({ format: 'A4' });
+    // Increase the timeout value and wait for the page to load
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
 
-      await browser.close();
+    // Create the PDF
+    const pdf = await page.pdf({ format: 'A4' });
+    await browser.close();
 
-      // Set response headers for PDF download
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
-      res.send(pdf);
+    // Set response headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
+    res.send(pdf);
   } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
+    console.error('Error generating PDF:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
