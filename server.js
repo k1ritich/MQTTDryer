@@ -449,6 +449,13 @@ app.get('/download-all-pdf', async (req, res) => {
 
       await browser.close();
 
+    // Launch a Puppeteer browser instance with additional flags
+    const browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: process.env.PUPETEER_VARIABLE
+    });
+
       // Set response headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
@@ -681,15 +688,24 @@ app.post('/FinishDrying', async (req, res) => {
       PowerState: "OFF",
       OperationState: "OFF",
     };
-    for (i=0; i < 10; i++) {
-      mqttClient.publish('MYMQTTDRYER/StoreStateTopic',JSON.stringify(PowerStates), { qos: 2, retain: true }, (err) => {
+    setTimeout(() => {
+      mqttClient.publish('MYMQTTDRYER/SwitchSourceModeTopic', "OFF", { qos: 2, retain: false }, (err) => {
         if (err) {
           console.error('Error publishing message:', err);
         } else {
           // console.log('Message published successfully');
+          setTimeout(() => {
+            mqttClient.publish('MYMQTTDRYER/SwitchPowerTopic', "OFF", { qos: 2, retain: false }, (err) => {
+              if (err) {
+                console.error('Error publishing message:', err);
+              } else {
+                // console.log('Message published successfully');
+              }
+            });
+          }, 1000); // Additional 1 second delay before publishing the second message
         }
       });
-    }
+    }, 1000); // Initial 1 second delay before publishing the first subsequent message
     mqttClient.publish('MYMQTTDRYER/PlayingTime',"NOTIMER", { qos: 2, retain: true }, (err) => {
       if (err) {
         console.error('Error publishing message:', err);
