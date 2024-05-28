@@ -528,6 +528,51 @@ function drawTable(doc, table) {
   }
 }
 
+// Mock data retrieval function
+const getHistoryById = (id) => {
+  // Replace this with your actual data retrieval logic
+  return {
+      id: id,
+      title: 'Sample History',
+      description: 'This is a sample history description.'
+  };
+};
+
+//Dowload Single Sensor Data PDF
+// Middleware to serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route to generate and download PDF
+app.get('/pdf/download/:id', (req, res) => {
+    const id = req.params.id;
+
+    // Data for the template
+    const data = {
+        title: 'PDF Title',
+        message: `This is a message for document ID: ${id}`
+    };
+
+    // Render the Pug template to HTML (even though we're not using the HTML directly here, it might be useful for complex templates)
+    const htmlContent = pug.renderFile(path.join(__dirname, 'views/document2.pug'), data);
+
+    // Create a PDF document
+    const doc = new PDFDocument();
+
+    // Set response headers for PDF download
+    res.setHeader('Content-Disposition', `attachment; filename=${id}.pdf`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    // Pipe the PDF into the response
+    doc.pipe(res);
+
+    // Add content to the PDF document
+    doc.fontSize(25).text(data.title, 100, 100);
+    doc.fontSize(12).text(data.message, 100, 150);
+
+    // Finalize the PDF and end the stream
+    doc.end();
+});
+
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/Dashboard');
