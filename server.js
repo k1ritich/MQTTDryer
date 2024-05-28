@@ -446,12 +446,12 @@ app.get('/download-All-pdf', async (req, res) => {
 
     // Render the Pug template to HTML
     const html = pug.renderFile(path.join(__dirname, 'views', 'document.pug'), { records: data, currentDate });
-    console.log('Content:', html); // Debugging line
 
     // Launch a Puppeteer browser instance with additional flags
     const browser = await puppeteer.launch({ 
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: '"C:\Program Files\Google\Chrome\Application\chrome.exe"' // Specify the correct path to Chrome executable
     });
     const page = await browser.newPage();
 
