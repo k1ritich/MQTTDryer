@@ -439,10 +439,12 @@ app.get('/download-all-pdf', async (req, res) => {
 
     // Launch Puppeteer with the bundled Chromium
     const browser = await puppeteer.launch({
-      executablePath: 'C:\\Users\\donan\\OneDrive\\Desktop\\chrome-win\\chrome-win\\chrome.exe', // Path to your Chromium executable
+      executablePath: 'C://Users//donan//OneDrive//Desktop//chrome-win//chrome-win//chrome.exe', // Path to your Chromium executable
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
+
+    const page = await browser.newPage();
 
     // Set content with a longer timeout and wait until network is idle
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
