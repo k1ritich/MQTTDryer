@@ -451,8 +451,9 @@ app.get('/download-All-pdf', async (req, res) => {
     const browser = await puppeteer.launch({ 
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: process.env.PUPETEER_VARIABLE // Specify the correct path to Chrome executable
+      executablePath: process.env.PUPETEER_VARIABLE
     });
+
     const page = await browser.newPage();
 
     // Set the HTML content of the page
