@@ -431,23 +431,21 @@ async function renderPdfTemplate(sensorData) {
 //Download All Data
 app.get('/download-All-pdf', async (req, res) => {
   try {
-    // Fetch limited data for performance optimization
     const data = await SensorDataModel.find()
       .select('UserName DryingTitle ItemName ItemQuantity startTime endTime stopTime TimeMode')
-      .limit(100) // Start with a small limit for testing
+      .limit(100)
       .exec();
 
-    // Generate the current date in the desired format
     const currentDate = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
 
-    // Render the Pug template to HTML
     const html = pug.renderFile(path.join(__dirname, 'views', 'document.pug'), { records: data, currentDate });
 
-    // Launch a Puppeteer browser instance with additional flags
+    console.log('Content:', html);
+
     const browser = await puppeteer.launch({ 
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -455,27 +453,22 @@ app.get('/download-All-pdf', async (req, res) => {
     });
     const page = await browser.newPage();
 
-    // Set the HTML content of the page
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 120000 });
 
-    // Generate the PDF from the page content in landscape layout
     const pdfBuffer = await page.pdf({ format: 'A4', landscape: true });
 
-    // Close the browser instance
     await browser.close();
 
-    // Set headers for the PDF file
     const now = new Date();
-    const dateString = now.toISOString().replace(/[:\-T]/g, '').slice(0, 14); // Format YYYYMMDDHHMMSS
+    const dateString = now.toISOString().replace(/[:\-T]/g, '').slice(0, 14);
     const filename = `Recent_Activities_${dateString}.pdf`;
 
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
     res.setHeader('Content-Type', 'application/pdf');
 
-    // Send the generated PDF
     res.send(pdfBuffer);
   } catch (err) {
-    console.error('Error generating PDF:', err); // Log the error for debugging
+    console.error('Error generating PDF:', err);
     res.status(500).send('Error generating PDF');
   }
 });
