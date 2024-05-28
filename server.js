@@ -16,7 +16,7 @@ const axios = require('axios');
 const puppeteer = require('puppeteer');
 const PDFDocument = require('pdfkit');
 const pug = require('pug');
-const html_to_pdf = require('html-pdf');
+const pdf = require('html-pdf');
 require('dotenv').config();
 
 app.use(session({
@@ -434,18 +434,21 @@ async function renderPdfTemplate(sensorData) {
 app.get('/download-all-pdf', async (req, res) => {
   try {
     // Render the Pug template to HTML
-    const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
     // Convert HTML to PDF
-    html_to_pdf.create(html).toBuffer((err, buffer) => {
+    pdf.create(html).toBuffer((err, buffer) => {
       if (err) {
-        console.error('Error generating PDF:', error);
+        console.error('Error generating PDF:', err);
         res.status(500).send('Internal Server Error');
         return;
       }
+      
+      // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
+      
+      // Send PDF buffer in response
       res.send(buffer);
     });
   } catch (error) {
