@@ -18,8 +18,6 @@ const PDFDocument = require('pdfkit');
 const pug = require('pug');
 require('dotenv').config();
 
-
-
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -435,28 +433,26 @@ async function renderPdfTemplate(sensorData) {
 app.get('/download-all-pdf', async (req, res) => {
   try {
     // Render the Pug template to HTML
+    const pug = require('pug');
     const html = pug.renderFile(path.join(__dirname, '/views/document.pug'));
 
-    // Launch Puppeteer with the bundled Chromium
-    const browser = await puppeteer.launch({
-      executablePath: 'C://Users//donan//OneDrive//Desktop//chrome-win//chrome-win//chrome.exe', // Path to your Chromium executable
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    // Create a new PDF document
+    const doc = new PDFDocument();
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfData = Buffer.concat(buffers);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
+      res.send(pdfData);
     });
 
-    const page = await browser.newPage();
+    // Pipe HTML content to PDF document
+    doc.pipe(fs.createWriteStream('output.pdf'));
+    doc.text(html);
 
-    // Set content with a longer timeout and wait until network is idle
-    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
-
-    // Create the PDF
-    const pdf = await page.pdf({ format: 'A4' });
-    await browser.close();
-
-    // Set response headers for PDF download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
-    res.send(pdf);
+    // Finalize the PDF
+    doc.end();
   } catch (error) {
     console.error('Error generating PDF:', error);
     res.status(500).send('Internal Server Error');
