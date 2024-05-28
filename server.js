@@ -438,12 +438,13 @@ app.get('/download-all-pdf', async (req, res) => {
       // Launch Puppeteer with options to handle environment-specific issues
       const browser = await puppeteer.launch({
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          executablePath: 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe' // Change this to the actual path of your Chrome or Chromium executable
       });
       const page = await browser.newPage();
 
       // Increase the timeout value and wait for the page to load
       await page.setContent(html, { waitUntil: 'networkidle0', timeout: 60000 });
-      
+
       // Create the PDF
       const pdf = await page.pdf({ format: 'A4' });
 
