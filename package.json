@@ -23,6 +23,7 @@
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "html-pdf": "^3.0.1",
+    "html-to-text": "^9.0.5",
     "moment-timezone": "^0.5.45",
     "mongodb": "^6.6.2",
     "mongoose": "^8.4.0",
