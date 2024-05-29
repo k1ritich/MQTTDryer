@@ -542,36 +542,138 @@ const getHistoryById = (id) => {
 // Middleware to serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to generate and download PDF
-app.get('/pdf/download/:id', (req, res) => {
-    const id = req.params.id;
+//generate and download PDF for single row
+app.get('/pdf/download/:id', async (req, res) => {
+  const id = req.params.id;
 
-    // Data for the template
-    const data = {
-        title: 'PDF Title',
-        message: `This is a message for document ID: ${id}`
-    };
+  try {
+      // Fetch the document from the database
+      const document = await SensorDataModel.findById(id);
 
-    // Render the Pug template to HTML (even though we're not using the HTML directly here, it might be useful for complex templates)
-    const htmlContent = pug.renderFile(path.join(__dirname, 'views/document2.pug'), data);
+      if (!document) {
+          return res.status(404).send('Document not found');
+      }
 
-    // Create a PDF document
-    const doc = new PDFDocument();
+      // Data for the template
+      const data = {
+          UserName: document.UserName,
+          DryingTitle: document.DryingTitle,
+          SubmitBy: document.SubmitBy,
+          ItemName: document.ItemName,
+          ItemQuantity: document.ItemQuantity,
+          startTime: document.startTime,
+          endTime: document.endTime,
+          stopTime: document.stopTime,
+          TimeMode: document.TimeMode,
+          Temperature: document.Temperature,
+          Humidity: document.Humidity
+      };
 
-    // Set response headers for PDF download
-    res.setHeader('Content-Disposition', `attachment; filename=${id}.pdf`);
-    res.setHeader('Content-Type', 'application/pdf');
+      // Create a PDF document
+      const doc = new PDFDocument();
 
-    // Pipe the PDF into the response
-    doc.pipe(res);
+      // Set response headers for PDF download
+      res.setHeader('Content-Disposition', `attachment; filename=${id}.pdf`);
+      res.setHeader('Content-Type', 'application/pdf');
 
-    // Add content to the PDF document
-    doc.fontSize(25).text(data.title, 100, 100);
-    doc.fontSize(12).text(data.message, 100, 150);
+      // Pipe the PDF into the response
+      doc.pipe(res);
+// Define row height for the table
+const rowHeight = 20;
 
-    // Finalize the PDF and end the stream
-    doc.end();
+// After drawing bold titles, switch to non-bold font for regular text
+doc.font('Helvetica');
+
+// Add content to the PDF document
+doc.fontSize(24).text('MARIANO MARCOS STATE UNIVERSITY', { align: 'left' });
+doc.fontSize(20).text('College of Engineering', { align: 'left' });
+doc.moveDown();
+doc.fontSize(16).text('Ceramics Engineering', { align: 'center' });
+doc.moveDown();
+doc.fontSize(16).text('Sensor Data', { align: 'center' });
+doc.moveDown();
+doc.fontSize(16).text('User Information');
+doc.fontSize(16).text(`User Name: ${data.UserName}`);
+doc.fontSize(16).text(`Drying Title: ${data.DryingTitle}`);
+doc.fontSize(16).text(`Submitted By: ${data.SubmitBy}`);
+doc.fontSize(16).text(`Item Name: ${data.ItemName}`);
+doc.fontSize(16).text(`Item Quantity: ${data.ItemQuantity}`);
+doc.fontSize(16).text(`Start Time: ${data.startTime}`);
+doc.fontSize(16).text(`End Time: ${data.endTime}`);
+doc.fontSize(16).text(`Stop Time: ${data.stopTime}`);
+doc.fontSize(16).text(`Time Mode: ${data.TimeMode}`);
+doc.moveDown();
+
+// Add Temperature and Humidity section
+doc.fontSize(20).text('Temperature and Humidity', { align: 'center' });
+doc.moveDown();
+
+// Calculate column widths
+const indexColumnWidth = 50;
+const columnWidth = (doc.page.width - 2 * doc.page.margins.left - indexColumnWidth) / 2;
+
+// Calculate the total height required for the table
+const totalTableHeight = (data.Temperature.length + 1) * rowHeight;
+
+// Check if the table fits on the current page
+if (doc.y + totalTableHeight > doc.page.height - doc.page.margins.bottom) {
+    // If the table doesn't fit, start it on the next page
+    doc.addPage();
+    yPosition = doc.page.margins.top;
+}
+
+// Define cell positions
+const indexCellX = doc.page.margins.left;
+const temperatureCellX = indexCellX + indexColumnWidth;
+const humidityCellX = temperatureCellX + columnWidth;
+let tableY = doc.y + 20;
+
+// Set font size for table column titles
+doc.fontSize(14);
+
+// Draw table headers
+doc.font('Helvetica-Bold').text('Index', indexCellX, tableY, { width: indexColumnWidth, align: 'center' });
+doc.text('Temperature', temperatureCellX, tableY, { width: columnWidth, align: 'center' });
+doc.text('Humidity', humidityCellX, tableY, { width: columnWidth, align: 'center' });
+
+// Update table Y position
+tableY += rowHeight;
+
+// Set font size for table data
+doc.fontSize(12);
+
+// Draw table content
+for (let i = 0; i < data.Temperature.length; i++) {
+    const index = i + 1;
+    const temperature = data.Temperature[i];
+    const humidity = data.Humidity[i];
+
+    // Draw cells with aligned data
+    doc.font('Helvetica')
+        .text(index.toString(), indexCellX + (indexColumnWidth / 2), tableY, { width: indexColumnWidth, align: 'center', continued: true })
+        .text(temperature.toString(), temperatureCellX + (columnWidth / 2), tableY, { width: columnWidth, align: 'center', continued: true })
+        .text(humidity.toString(), humidityCellX + (columnWidth / 2), tableY, { width: columnWidth, align: 'center' });
+
+    // Update table Y position
+    tableY += rowHeight;
+}
+
+// Move down after the table
+doc.moveDown();
+
+// Finalize the PDF and end the stream
+doc.end();
+
+
+
+
+
+  } catch (error) {
+      console.error('Error fetching document:', error);
+      res.status(500).send('Internal Server Error');
+  }
 });
+
 
 app.get('/', (req, res) => {
   if (req.session.user) {
