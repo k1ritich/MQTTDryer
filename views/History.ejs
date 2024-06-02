@@ -232,13 +232,21 @@
 
 <script>
 	function Duration(startTime, endTime) {
-		const durationInMillis = new Date(endTime) - new Date(startTime);
-		const days = Math.floor(durationInMillis / (24 * 60 * 60 * 1000));
-		const hours = Math.floor((durationInMillis % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-		const minutes = Math.floor((durationInMillis % (60 * 60 * 1000)) / (60 * 1000));
+    // Add 4 hours (in milliseconds) to the startTime
+    const adjustedStartTime = new Date(new Date(startTime).getTime() + 4 * 60 * 60 * 1000);
+    // Add 4 hours (in milliseconds) to the endTime
+    const adjustedEndTime = new Date(new Date(endTime).getTime() + 4 * 60 * 60 * 1000);
 
-		return `${days} day/s ${hours} hour/s ${minutes} minute/s`;
-	}
+    const durationInMillis = adjustedEndTime - adjustedStartTime;
+    const days = Math.floor(durationInMillis / (24 * 60 * 60 * 1000));
+    const hours = Math.floor((durationInMillis % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    const minutes = Math.floor((durationInMillis % (60 * 60 * 1000)) / (60 * 1000));
+
+    return `${days} day/s ${hours} hour/s ${minutes} minute/s`;
+}
+
+
+	
 
 	<% MyHistory.forEach((history, index) => { %>
 			const startTime<%= index %> = '<%= history.startTime %>';
