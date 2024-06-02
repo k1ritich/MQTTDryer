@@ -544,7 +544,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //generate and download PDF for single row
 const moment = require('moment'); // Import the moment library to handle date and time
 
-//Dowload Single Sensor Data PDF
 app.get('/pdf/download/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -556,10 +555,10 @@ app.get('/pdf/download/:id', async (req, res) => {
       return res.status(404).send('Document not found');
     }
 
-    // Inside your try block where you fetch the document
-    const startTime = moment(document.startTime).format('MMMM D, YYYY h:mm a');
-    const endTime = moment(document.endTime).format('MMMM D, YYYY h:mm a');
-    const stopTime = moment(document.stopTime).format('MMMM D, YYYY h:mm a');
+    // Subtract 4 hours from startTime, endTime, and stopTime
+    const startTime = moment(document.startTime).subtract(4, 'hours').format('MMMM D, YYYY h:mm a');
+    const endTime = moment(document.endTime).subtract(4, 'hours').format('MMMM D, YYYY h:mm a');
+    const stopTime = moment(document.stopTime).subtract(4, 'hours').format('MMMM D, YYYY h:mm a');
 
     // Data for the template
     const data = {
@@ -574,7 +573,7 @@ app.get('/pdf/download/:id', async (req, res) => {
       TimeMode: document.TimeMode,
       Temperature: document.Temperature,
       Humidity: document.Humidity
-      };
+    };
 
     // Create a PDF document
     const doc = new PDFDocument({ size: 'A4' });
@@ -587,7 +586,6 @@ app.get('/pdf/download/:id', async (req, res) => {
     // Pipe the PDF into the response
     doc.pipe(res);
 
-    
     // Add content to the PDF document
     doc.font('Times-Roman').fontSize(20).fill('#0c4b05').text('MARIANO MARCOS STATE UNIVERSITY', { align: 'left' });
     doc.fill('black'); // Reset fill color to black for subsequent text
@@ -613,12 +611,9 @@ app.get('/pdf/download/:id', async (req, res) => {
     doc.fontSize(10).text(`Time Mode: ${data.TimeMode}`);
     doc.moveDown();
 
-    
-
     // Add Temperature and Humidity section
     doc.fontSize(12).font('Times-Bold').text('Temperature and Humidity', { align: 'center' });
     doc.moveDown();
-
 
     // Table headers
     const indexColumnWidth = 80;
@@ -640,9 +635,9 @@ app.get('/pdf/download/:id', async (req, res) => {
       let sensorName = `Sensor ${index}`;
       if (index === 13) sensorName = 'Ambient';
       else if (index === 14) sensorName = 'Average';
-      
+
       const humidity = data.Humidity[i];
-      
+
       doc.text(sensorName, doc.page.margins.left, tableY, { width: indexColumnWidth, align: 'center' });
       doc.text(temperature.toString(), doc.page.margins.left + indexColumnWidth, tableY, { width: columnWidth, align: 'center' });
       doc.text(humidity.toString(), doc.page.margins.left + indexColumnWidth + columnWidth, tableY, { width: columnWidth, align: 'center' });
