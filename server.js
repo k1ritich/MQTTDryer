@@ -587,11 +587,13 @@ app.get('/pdf/download/:id', async (req, res) => {
     // Pipe the PDF into the response
     doc.pipe(res);
 
+    
     // Add content to the PDF document
-    doc.font('Times-Roman').fontSize(20).text('MARIANO MARCOS STATE UNIVERSITY', { align: 'left' });
+    doc.font('Times-Roman').fontSize(20).fill('#0c4b05').text('MARIANO MARCOS STATE UNIVERSITY', { align: 'left' });
+    doc.fill('black'); // Reset fill color to black for subsequent text
     doc.fontSize(16).text('College of Engineering', { align: 'left' });
     doc.moveDown();
-    
+
     // Add Sensor Data section
     doc.fontSize(14).font('Times-Bold').text('Sensor Data', { align: 'center' });
     doc.moveDown();
