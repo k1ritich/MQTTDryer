@@ -538,13 +538,13 @@ const getHistoryById = (id) => {
   };
 };
 
-//Dowload Single Sensor Data PDF
 // Middleware to serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 //generate and download PDF for single row
 const moment = require('moment'); // Import the moment library to handle date and time
 
+//Dowload Single Sensor Data PDF
 app.get('/pdf/download/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -556,6 +556,11 @@ app.get('/pdf/download/:id', async (req, res) => {
       return res.status(404).send('Document not found');
     }
 
+    // Inside your try block where you fetch the document
+    const startTime = moment(document.startTime).format('MMMM D, YYYY h:mm a');
+    const endTime = moment(document.endTime).format('MMMM D, YYYY h:mm a');
+    const stopTime = moment(document.stopTime).format('MMMM D, YYYY h:mm a');
+
     // Data for the template
     const data = {
       UserName: document.UserName,
@@ -563,13 +568,13 @@ app.get('/pdf/download/:id', async (req, res) => {
       SubmitBy: document.SubmitBy,
       ItemName: document.ItemName,
       ItemQuantity: document.ItemQuantity,
-      startTime: document.startTime,
-      endTime: document.endTime,
-      stopTime: document.stopTime,
+      startTime: startTime,
+      endTime: endTime,
+      stopTime: stopTime,
       TimeMode: document.TimeMode,
       Temperature: document.Temperature,
       Humidity: document.Humidity
-    };
+      };
 
     // Create a PDF document
     const doc = new PDFDocument({ size: 'A4' });
@@ -594,11 +599,11 @@ app.get('/pdf/download/:id', async (req, res) => {
     doc.fontSize(14).font('Times-Bold').text('Sensor Data', { align: 'center' });
     doc.moveDown();
 
-    doc.fontSize(12).text('User Information', { underline: true });
+    doc.fontSize(12).text('User Information', { underline: false });
     doc.moveDown();
     // Activity Data
     doc.font('Times-Roman');
-    doc.fontSize(10).text(`User Name: ${data.UserName}`);
+    doc.fontSize(10).text(`Started By: ${data.UserName}`);
     doc.fontSize(10).text(`Drying Title: ${data.DryingTitle}`);
     doc.fontSize(10).text(`Submitted By: ${data.SubmitBy}`);
     doc.fontSize(10).text(`Item Name: ${data.ItemName}`);
