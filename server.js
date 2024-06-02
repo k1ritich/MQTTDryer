@@ -591,10 +591,7 @@ app.get('/pdf/download/:id', async (req, res) => {
     doc.font('Times-Roman').fontSize(20).text('MARIANO MARCOS STATE UNIVERSITY', { align: 'left' });
     doc.fontSize(16).text('College of Engineering', { align: 'left' });
     doc.moveDown();
-    // Add Ceramics Engineering section
-    doc.fontSize(14).font('Times-Bold').text('Ceramics Engineering', { align: 'center' });
-    doc.moveDown(0.5); // Adjust the value as needed
-
+    
     // Add Sensor Data section
     doc.fontSize(14).font('Times-Bold').text('Sensor Data', { align: 'center' });
     doc.moveDown();
